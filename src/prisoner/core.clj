@@ -1,4 +1,5 @@
-(ns prisoner.core)
+(ns prisoner.core
+  (:require clojure.string))
 
 (defprotocol Prisoner 
   (title [this])
@@ -49,10 +50,14 @@
 ;;
 ;; (play-rounds 10 Sucker Cheat)
 ;; (play-rounds 10 Sucker Retaliator)
-(defmacro play-rounds [rounds x y]
+
+(defmacro play-rounds 
+  "Plays a given number of rounds between the two given strategies
+  Ex: (play-rounds 10 Sucker Cheat)"
+  [rounds x y]
   `(last 
     (take (inc ~rounds)
       (iterate play-round [(new ~x [] [] []) (new ~y [] [] [])]))))
 
 (defn report [players]
-  (for [x players] (str (title x) ": " (total x) " points")))
+  (clojure.string/join "; " (for [x players] (str (title x) ": " (total x) " points"))))
