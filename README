@@ -1,13 +1,29 @@
 # prisoner
 
-FIXME: write description
+This is a Prisoner's Dilemma simulation written in Clojure.
 
-## Usage
+I've selected the payoffs and names based on
+Richard Dawkins' description in The Selfish Gene.
 
-FIXME: write
+The plan will be to develop a few different tournament types
+starting with a simple, random number of rounds and ending 
+with an evolutionary tournament where strategies are paid
+with offspring.
+
+The goal of this project is to learn both Clojure and some
+basic evolutionary/genetic programming techniques while
+having fun.
+
+
+## TODO
+
+- Write some tests
+- Build the language up to the problem
+- Create the game and round abstractions
+- Create a reporting function that produces final results
 
 ## License
 
-Copyright (C) 2011 FIXME
+Copyright (C) 2011 Christian Romney
 
 Distributed under the Eclipse Public License, the same as Clojure.
