@@ -7,21 +7,21 @@
 
 (defrecord Defector [points plays opponent]
   Prisoner
-  (total [this] (reduce + 0 points))
-  (play [this] (Defector. points (conj plays :defect) opponent))
-  (pay [this x] (Defector. (conj points x) plays
+  (total [_] (reduce + 0 points))
+  (play [_] (Defector. points (conj plays :defect) opponent))
+  (pay [_ x] (Defector. (conj points x) plays
                            (if (< x 3) (conj opponent :defect)
                              (conj opponent :coop)))))
 
 (defrecord TitForTat [points plays opponent]
   Prisoner
-  (total [this] (reduce + 0 points))
-  (play [this] (TitForTat. points
+  (total [_] (reduce + 0 points))
+  (play [_] (TitForTat. points
                            (let [opp (last opponent)] 
                              (if (= :defect opp) (conj plays :defect)
                                (conj plays :coop)))
                            opponent))
-  (pay [this x] (TitForTat. (conj points x) plays
+  (pay [_ x] (TitForTat. (conj points x) plays
                             (if (< x 3) (conj opponent :defect)
                               (conj opponent :coop)))))
 
