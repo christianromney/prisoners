@@ -16,25 +16,25 @@
                              (conj opponent :coop)))))
   
 
-(defrecord Defector [points plays opponent]
+(defrecord Cheat [points plays opponent]
   Prisoner
-  (title [_] "Defector")
+  (title [_] "Cheat")
   (total [_] (reduce + 0 points))
-  (play [_] (Defector. points (conj plays :defect) opponent))
-  (pay [_ x] (Defector. (conj points x) plays
+  (play [_] (Cheat. points (conj plays :defect) opponent))
+  (pay [_ x] (Cheat. (conj points x) plays
                            (if (< x 3) (conj opponent :defect)
                              (conj opponent :coop)))))
 
-(defrecord TitForTat [points plays opponent]
+(defrecord Retaliator [points plays opponent]
   Prisoner
-  (title [_] "Tit-For-Tat")
+  (title [_] "Retaliator")
   (total [_] (reduce + 0 points))
-  (play [_] (TitForTat. points
+  (play [_] (Retaliator. points
                            (let [opp (last opponent)] 
                              (if (= :defect opp) (conj plays :defect)
                                (conj plays :coop)))
                            opponent))
-  (pay [_ x] (TitForTat. (conj points x) plays
+  (pay [_ x] (Retaliator. (conj points x) plays
                             (if (< x 3) (conj opponent :defect)
                               (conj opponent :coop)))))
 
@@ -45,6 +45,10 @@
           (= :coop outcome-a) [(pay a 0) (pay b 5)]
           :else [(pay a 5) (pay b 0)])))
 
+;; Example:
+;;
+;; (play-rounds 10 Sucker Cheat)
+;; (play-rounds 10 Sucker Retaliator)
 (defmacro play-rounds [rounds x y]
   `(last 
     (take (inc ~rounds)
