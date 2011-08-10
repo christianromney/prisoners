@@ -61,3 +61,4 @@
 
 (defn report [players]
   (clojure.string/join "; " (for [x players] (str (title x) ": " (total x) " points"))))
+
