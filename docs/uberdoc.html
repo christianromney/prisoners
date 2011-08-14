@@ -2566,11 +2566,13 @@ on the outcomes of each game using Incanter.</p>
   (and (defected? x) (defected? y)))</pre></tr><tr><td class="docs"><p>Betrayal is when the first strategy defected and the 
 second cooperated.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn betrayed? [x y]
-  (and (defected? x) (cooperated? y)))</pre></tr><tr><td class="docs"><p>Infers what the opponent played based on payoff.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn opponent-defected? [n]
-  (&lt; n *partner*))</pre></tr><tr><td class="docs"><p>Takes note of a cooperation by conjoining it to a sequence.</p>
+  (and (defected? x) (cooperated? y)))</pre></tr><tr><td class="docs"><p>Infers what the opponent played based on payoff.
+If my payoff is less than <em>partner</em> my opponent
+must have defected.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn opponent-defected? [my-payoff]
+  (&lt; my-payoff *partner*))</pre></tr><tr><td class="docs"><p>Takes note of a cooperation by conjoining it to a sequence.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn note-cooperation [results]
-  (conj results :coop))</pre></tr><tr><td class="docs"><p>Takes not of a defection by conjoining it to a sequence.</p>
+  (conj results :coop))</pre></tr><tr><td class="docs"><p>Takes note of a defection by conjoining it to a sequence.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn note-defection [results]
   (conj results :defect))</pre></tr><tr><td class="docs"><p>Awards points by conjoining the value to a sequence.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn award [n points]

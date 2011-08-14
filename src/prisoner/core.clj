@@ -59,14 +59,16 @@
   (and (defected? x) (cooperated? y)))
 
 ;; Infers what the opponent played based on payoff.
-(defn opponent-defected? [n]
-  (< n *partner*))
+;; If my payoff is less than *partner* my opponent
+;; must have defected.
+(defn opponent-defected? [my-payoff]
+  (< my-payoff *partner*))
 
 ;; Takes note of a cooperation by conjoining it to a sequence.
 (defn note-cooperation [results]
   (conj results :coop))
 
-;; Takes not of a defection by conjoining it to a sequence.
+;; Takes note of a defection by conjoining it to a sequence.
 (defn note-defection [results]
   (conj results :defect))
 
