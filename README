@@ -14,6 +14,11 @@ The goal of this project is to learn both Clojure and some
 basic evolutionary/genetic programming techniques while
 having fun.
 
+## Getting Started
+
+- Run ```lein compile``` to generate the classes
+- Run ```lein repl``` to experiment
+- Run ```lein marg``` to generate the documentation
 
 ## TODO
 

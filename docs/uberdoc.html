@@ -2530,7 +2530,9 @@ $(document).ready(function() {
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.1</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.6.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#prisoner.core">prisoner.core</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#prisoner.core" name="prisoner.core"><h1 class="project-name">prisoner.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes" /><pre class="brush: clojure">(ns prisoner.core
   (:require clojure.string)
-  (:use [clojure.contrib.combinatorics :as combo]))</pre></tr><tr><td class="docs"><p>This is an iterative Prisoner's Dilemma simulation.
+  (:use [clojure.contrib.combinatorics :as combo]))</pre></tr><tr><td class="docs"><h2>Prisoner's Dilemma</h2>
+
+<p>This is an iterative Prisoner's Dilemma simulation.
 I've selected the payoffs and names based on
 Richard Dawkins' description in The Selfish Gene.</p>
 
@@ -2551,11 +2553,19 @@ number of generations.</p>
 of friendly or nasty strategies in the competition. The
 final goal of this project will be to visualize and report
 on the outcomes of each game using Incanter.</p>
+</td><td class="codes" /></tr><tr><td class="docs"><h3>Payoffs</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Payoff for the cooperator when the other strategy defects.</p>
 </td><td class="codes" /><pre class="brush: clojure">(def *sucker* 0)</pre></tr><tr><td class="docs"><p>Payoff when both strategies defect.</p>
 </td><td class="codes" /><pre class="brush: clojure">(def *defector* 1)</pre></tr><tr><td class="docs"><p>Payoff when both strategies cooperate.</p>
 </td><td class="codes" /><pre class="brush: clojure">(def *partner* 3)</pre></tr><tr><td class="docs"><p>Payoff for the defector when the other cooperates.</p>
-</td><td class="codes" /><pre class="brush: clojure">(def *backstabber* 5)</pre></tr><tr><td class="docs"><p>Cooperation occurs when :coop is played by a strategy.</p>
+</td><td class="codes" /><pre class="brush: clojure">(def *backstabber* 5)</pre></tr><tr><td class="docs"><h1>Strategy Definition</h1>
+</td><td class="codes" /></tr><tr><td class="docs"><p>The Prisoner protocol defines the operations
+that a Prisoner's Dilemma strategy must support.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defprotocol Prisoner 
+  (title [this])
+  (play [this])
+  (pay [this x]))</pre></tr><tr><td class="docs"><h1>Predicates</h1>
+</td><td class="codes" /></tr><tr><td class="docs"><p>Cooperation occurs when :coop is played by a strategy.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn cooperated? [x]
   (= :coop x))</pre></tr><tr><td class="docs"><p>Defection occurs when :defect is played by a strategy.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn defected? [x]
@@ -2570,25 +2580,22 @@ second cooperated.</p>
 If my payoff is less than <em>partner</em> my opponent
 must have defected.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn opponent-defected? [my-payoff]
-  (&lt; my-payoff *partner*))</pre></tr><tr><td class="docs"><p>Takes note of a cooperation by conjoining it to a sequence.</p>
+  (&lt; my-payoff *partner*))</pre></tr><tr><td class="docs"><h1>Record Keeping Functions</h1>
+</td><td class="codes" /></tr><tr><td class="docs"><p>Takes note of a cooperation by conjoining it to a sequence.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn note-cooperation [results]
   (conj results :coop))</pre></tr><tr><td class="docs"><p>Takes note of a defection by conjoining it to a sequence.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn note-defection [results]
   (conj results :defect))</pre></tr><tr><td class="docs"><p>Awards points by conjoining the value to a sequence.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn award [n points]
-  (conj points n))</pre></tr><tr><td class="docs"><p>The Prisoner protocol defines the operations
-that a Prisoner's Dilemma strategy must support.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defprotocol Prisoner 
-  (title [this])
-  (play [this])
-  (pay [this x]))</pre></tr><tr><td class="docs"><p>Pay both strategies for cooperation.</p>
+  (conj points n))</pre></tr><tr><td class="docs"><p>Pay both strategies for cooperation.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-partners [a b]
   (map #(pay % *partner*) [a b]))</pre></tr><tr><td class="docs"><p>Pay both strategies for defection.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-defectors [a b]
   (map #(pay % *defector*) [a b]))</pre></tr><tr><td class="docs"><p>Reward the backstaber and punish the sucker.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-betrayal [backstabber sucker]
   [(pay backstabber *backstabber*)
-   (pay sucker *sucker*)])</pre></tr><tr><td class="docs"><p>The Sucker strategy always cooperates.</p>
+   (pay sucker *sucker*)])</pre></tr><tr><td class="docs"><h1>Strategy Implementations</h1>
+</td><td class="codes" /></tr><tr><td class="docs"><p>The Sucker strategy always cooperates.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defrecord Sucker [points plays opponent]
   Prisoner 
   (title [_] &quot;Sucker&quot;)
@@ -2614,7 +2621,8 @@ It will cooperate if given the first move.</p>
   (pay [_ x] (TitForTat. (award x points) 
                          plays
                          (if (opponent-defected? x) (note-defection opponent)
-                           (note-cooperation opponent)))))</pre></tr><tr><td class="docs"><p>Play one round between two strategies and 
+                           (note-cooperation opponent)))))</pre></tr><tr><td class="docs"><h1>Gameplay Functions</h1>
+</td><td class="codes" /></tr><tr><td class="docs"><p>Play one round between two strategies and 
 award the appropriate payoffs.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn play-round [[x y]]
   (let [player-a (play x) 
@@ -2625,6 +2633,7 @@ award the appropriate payoffs.</p>
           (mutual-defection? a b) (pay-defectors player-a player-b)
           (betrayed? a b) (pay-betrayal player-a player-b)
           :else (pay-betrayal player-b player-a))))</pre></tr><tr><td class="docs"><p>Plays a given number of rounds between two named strategies.
+Use of a macro here allows one to pass in the names of the strategies.
 Example: (play-rounds 10 Sucker Cheat)</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmacro play-rounds 
   [rounds x y]

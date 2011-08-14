@@ -2,6 +2,8 @@
   (:require clojure.string)
   (:use [clojure.contrib.combinatorics :as combo]))
 
+;; ## Prisoner's Dilemma 
+;;
 ;; This is an iterative Prisoner's Dilemma simulation.
 ;; I've selected the payoffs and names based on
 ;; Richard Dawkins' description in The Selfish Gene.
@@ -24,6 +26,7 @@
 ;; final goal of this project will be to visualize and report
 ;; on the outcomes of each game using Incanter.
 
+;; ### Payoffs
 
 ;; Payoff for the cooperator when the other strategy defects.
 (def *sucker* 0)
@@ -36,6 +39,17 @@
 
 ;; Payoff for the defector when the other cooperates.
 (def *backstabber* 5)
+
+;; ### Strategy Definition
+
+;; The Prisoner protocol defines the operations
+;; that a Prisoner's Dilemma strategy must support.
+(defprotocol Prisoner 
+  (title [this])
+  (play [this])
+  (pay [this x]))
+
+;; ### Predicates
 
 ;; Cooperation occurs when :coop is played by a strategy.
 (defn cooperated? [x]
@@ -64,6 +78,8 @@
 (defn opponent-defected? [my-payoff]
   (< my-payoff *partner*))
 
+;; ### Record-keeping Functions
+
 ;; Takes note of a cooperation by conjoining it to a sequence.
 (defn note-cooperation [results]
   (conj results :coop))
@@ -75,13 +91,6 @@
 ;; Awards points by conjoining the value to a sequence.
 (defn award [n points]
   (conj points n))
-
-;; The Prisoner protocol defines the operations
-;; that a Prisoner's Dilemma strategy must support.
-(defprotocol Prisoner 
-  (title [this])
-  (play [this])
-  (pay [this x]))
 
 ;; Pay both strategies for cooperation.
 (defn pay-partners [a b]
@@ -95,6 +104,8 @@
 (defn pay-betrayal [backstabber sucker]
   [(pay backstabber *backstabber*)
    (pay sucker *sucker*)])
+
+;; ### Strategy Implementations
 
 ;; The Sucker strategy always cooperates.
 (defrecord Sucker [points plays opponent]
@@ -128,6 +139,8 @@
                          (if (opponent-defected? x) (note-defection opponent)
                            (note-cooperation opponent)))))
 
+;; ### Gameplay Functions
+
 ;; Play one round between two strategies and 
 ;; award the appropriate payoffs.
 (defn play-round [[x y]]
@@ -141,6 +154,7 @@
           :else (pay-betrayal player-b player-a))))
 
 ;; Plays a given number of rounds between two named strategies.
+;; Use of a macro here allows one to pass in the names of the strategies.
 ;; Example: (play-rounds 10 Sucker Cheat)
 (defmacro play-rounds 
   [rounds x y]
