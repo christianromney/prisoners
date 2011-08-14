@@ -13,7 +13,7 @@
 ;; The most successful strategy will be determined by its
 ;; total number of points at the end of the tournament.
 ;;
-;; Eventually, I wish to evolve (pun intended) the game
+;; Eventually, I wish to evolve the game (pun intended)
 ;; by paying each strategy not in points, but in copies of
 ;; itself. The most successful strategy will be determined
 ;; by its frequency in the pool of strategies after a given
