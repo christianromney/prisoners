@@ -1,64 +1,137 @@
 (ns prisoner.core
-  (:require clojure.string))
+  (:require clojure.string)
+  (:use [clojure.contrib.combinatorics :as combo]))
 
+;; Payoff for the cooperator when the other strategy defects.
+(def *sucker* 0)
+
+;; Payoff when both strategies defect.
+(def *defector* 1)
+
+;; Payoff when both strategies cooperate.
+(def *partner* 3)
+
+;; Payoff for the defector when the other cooperates.
+(def *backstabber* 5)
+
+;; Cooperation occurs when :coop is played by a strategy.
+(defn cooperated? [x]
+  (= :coop x))
+
+;; Defection occurs when :defect is played by a strategy.
+(defn defected? [x]
+  (= :defect x))
+
+;; Mutual cooperation is when both strategies cooperated.
+(defn mutual-cooperation? [x y]
+  (and (cooperated? x) (cooperated? y)))
+
+;; Mutual defection is when both strategies defected.
+(defn mutual-defection? [x y]
+  (and (defected? x) (defected? y)))
+
+;; Betrayal is when the first strategy defected and the 
+;; second cooperated.
+(defn betrayed? [x y]
+  (and (defected? x) (cooperated? y)))
+
+;; Infers what the opponent played based on payoff.
+(defn opponent-defected? [n]
+  (< n *partner*))
+
+;; Takes note of a cooperation by conjoining it to a sequence.
+(defn note-cooperation [results]
+  (conj results :coop))
+
+;; Takes not of a defection by conjoining it to a sequence.
+(defn note-defection [results]
+  (conj results :defect))
+
+;; Awards points by conjoining the value to a sequence.
+(defn award [n points]
+  (conj points n))
+
+;; The Prisoner protocol defines the operations
+;; that a Prisoner's Dilemma strategy must support.
 (defprotocol Prisoner 
   (title [this])
   (play [this])
-  (pay [this x])
-  (total [this]))
+  (pay [this x]))
 
+;; Pay both strategies for cooperation.
+(defn pay-partners [a b]
+  (map #(pay % *partner*) [a b]))
+
+;; Pay both strategies for defection.
+(defn pay-defectors [a b]
+  (map #(pay % *defector*) [a b]))
+
+;; Reward the backstaber and punish the sucker.
+(defn pay-betrayal [backstabber sucker]
+  [(pay backstabber *backstabber*)
+   (pay sucker *sucker*)])
+
+;; The Sucker strategy always cooperates.
 (defrecord Sucker [points plays opponent]
   Prisoner 
   (title [_] "Sucker")
-  (total [_] (reduce + 0 points))
-  (play [_] (Sucker. points (conj plays :coop) opponent))
-  (pay [_ x] (Sucker. (conj points x) plays 
-                           (if (< x 3) (conj opponent :defect)
-                             (conj opponent :coop)))))
+  (play [_] (Sucker. points (note-cooperation plays) opponent))
+  (pay [_ x] (Sucker. (award x points) plays 
+                           (if (opponent-defected? x) (note-defection opponent)
+                             (note-cooperation opponent)))))
   
-
+;; The Cheat strategy always defects.
 (defrecord Cheat [points plays opponent]
   Prisoner
   (title [_] "Cheat")
-  (total [_] (reduce + 0 points))
-  (play [_] (Cheat. points (conj plays :defect) opponent))
-  (pay [_ x] (Cheat. (conj points x) plays
-                           (if (< x 3) (conj opponent :defect)
-                             (conj opponent :coop)))))
+  (play [_] (Cheat. points (note-defection plays) opponent))
+  (pay [_ x] (Cheat. (award x points) plays
+                           (if (opponent-defected? x) (note-defection opponent)
+                             (note-cooperation opponent)))))
 
-(defrecord Retaliator [points plays opponent]
+;; Tit-For-Tat will always play whatever its opponent played last. 
+;; It will cooperate if given the first move.
+(defrecord TitForTat [points plays opponent]
   Prisoner
-  (title [_] "Retaliator")
-  (total [_] (reduce + 0 points))
-  (play [_] (Retaliator. points
-                           (let [opp (last opponent)] 
-                             (if (= :defect opp) (conj plays :defect)
-                               (conj plays :coop)))
-                           opponent))
-  (pay [_ x] (Retaliator. (conj points x) plays
-                            (if (< x 3) (conj opponent :defect)
-                              (conj opponent :coop)))))
+  (title [_] "TitForTat")
+  (play [_] (TitForTat. points
+                        (if (defected? (last opponent)) (note-defection plays)
+                          (note-cooperation plays))
+                        opponent))
+  (pay [_ x] (TitForTat. (award x points) 
+                         plays
+                         (if (opponent-defected? x) (note-defection opponent)
+                           (note-cooperation opponent)))))
 
+;; Play one round between two strategies and 
+;; award the appropriate payoffs.
 (defn play-round [[x y]]
-  (let [a (play x) b (play y) outcome-a (last (:plays a)) outcome-b (last (:plays b))]
-    (cond (and (= :coop outcome-a) (= :coop outcome-b)) [(pay a 3) (pay b 3)]
-          (and (= :defect outcome-a) (= :defect outcome-b)) [(pay a 1) (pay b 1)]
-          (= :coop outcome-a) [(pay a 0) (pay b 5)]
-          :else [(pay a 5) (pay b 0)])))
+  (let [player-a (play x) 
+        player-b (play y) 
+        a (last (:plays player-a)) 
+        b (last (:plays player-b))]
+    (cond (mutual-cooperation? a b) (pay-partners player-a player-b)
+          (mutual-defection? a b) (pay-defectors player-a player-b)
+          (betrayed? a b) (pay-betrayal player-a player-b)
+          :else (pay-betrayal player-b player-a))))
 
-;; Example:
-;;
-;; (play-rounds 10 Sucker Cheat)
-;; (play-rounds 10 Sucker Retaliator)
-
+;; Plays a given number of rounds between two named strategies.
+;; Example: (play-rounds 10 Sucker Cheat)
 (defmacro play-rounds 
-  "Plays a given number of rounds between the two given strategies
-  Ex: (play-rounds 10 Sucker Cheat)"
   [rounds x y]
   `(last 
     (take (inc ~rounds)
       (iterate play-round [(new ~x [] [] []) (new ~y [] [] [])]))))
 
-(defn report [players]
-  (clojure.string/join "; " (for [x players] (str (title x) ": " (total x) " points"))))
+;; Produces the sum of a sequence of numbers.
+(defn tally [numbers]
+  (reduce + 0 numbers))
+
+;; Summarizes a strategy's score.
+(defn summarize [strategy]
+  (str (title strategy) ": " (tally (:points strategy)) " points"))
+
+;; Calculates the resulting scores for each of the strategies.
+(defn report [strategies]
+  (clojure.string/join "; " (map summarize strategies)))
 
