@@ -2,6 +2,29 @@
   (:require clojure.string)
   (:use [clojure.contrib.combinatorics :as combo]))
 
+;; This is an iterative Prisoner's Dilemma simulation.
+;; I've selected the payoffs and names based on
+;; Richard Dawkins' description in The Selfish Gene.
+;;
+;; Currently, a given number of rounds can be played between
+;; strategies. The next goal is to organize a tournament
+;; by having each strategy play every other strategy, as
+;; well as a copy of itself, for a given number of rounds.
+;; The most successful strategy will be determined by its
+;; total number of points at the end of the tournament.
+;;
+;; Eventually, I wish to evolve (pun intended) the game
+;; by paying each strategy not in points, but in copies of
+;; itself. The most successful strategy will be determined
+;; by its frequency in the pool of strategies after a given
+;; number of generations.
+;;
+;; Both types of games above can be influenced by the number
+;; of friendly or nasty strategies in the competition. The
+;; final goal of this project will be to visualize and report
+;; on the outcomes of each game using Incanter.
+
+
 ;; Payoff for the cooperator when the other strategy defects.
 (def *sucker* 0)
 
