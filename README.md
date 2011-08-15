@@ -16,6 +16,7 @@ having fun.
 
 ## Getting Started
 
+- Run ```lein deps``` to download the dependencies
 - Run ```lein compile``` to generate the classes
 - Run ```lein repl``` to experiment
 - Run ```lein marg``` to generate the documentation
