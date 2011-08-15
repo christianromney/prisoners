@@ -146,9 +146,11 @@
 
 ;; ### Running the Simulation
 ;;
-;; First, run `lein compile` to AOT compile the project
+;; First, run `lein deps` to download the dependencies
 ;;
-;; Next, run `lein repl`
+;; Next, run `lein compile` to AOT compile the project
+;;
+;; Then, run `lein repl`
 ;; 
 ;; Last, type this:
 ;;

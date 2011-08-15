@@ -2627,9 +2627,11 @@ Example: (play-rounds 10 Sucker Cheat)</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn report [strategies]
   (clojure.string/join &quot;, &quot; (map summarize strategies)))</pre></tr><tr><td class="docs"><h3>Running the Simulation</h3>
 
-<p>First, run <code>lein compile</code> to AOT compile the project</p>
+<p>First, run <code>lein deps</code> to download the dependencies</p>
 
-<p>Next, run <code>lein repl</code></p>
+<p>Next, run <code>lein compile</code> to AOT compile the project</p>
+
+<p>Then, run <code>lein repl</code></p>
 
 <p>Last, type this:</p>
 
