@@ -27,6 +27,8 @@ having fun.
 - Build the language up to the problem
 - Create the game and tournament abstractions
 - Records seem like overkill given the duplication they introduce (pay...)
+  Maybe just a map / multimethods? ```pay``` can be a regular function and
+  perhaps title can be metadata?
 
 ## License
 
