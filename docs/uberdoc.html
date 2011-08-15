@@ -2558,13 +2558,13 @@ on the outcomes of each game using Incanter.</p>
 </td><td class="codes" /><pre class="brush: clojure">(def *sucker* 0)</pre></tr><tr><td class="docs"><p>Payoff when both strategies defect.</p>
 </td><td class="codes" /><pre class="brush: clojure">(def *defector* 1)</pre></tr><tr><td class="docs"><p>Payoff when both strategies cooperate.</p>
 </td><td class="codes" /><pre class="brush: clojure">(def *partner* 3)</pre></tr><tr><td class="docs"><p>Payoff for the defector when the other cooperates.</p>
-</td><td class="codes" /><pre class="brush: clojure">(def *backstabber* 5)</pre></tr><tr><td class="docs"><h1>Strategy Definition</h1>
+</td><td class="codes" /><pre class="brush: clojure">(def *backstabber* 5)</pre></tr><tr><td class="docs"><h3>Strategy Definition</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>The Prisoner protocol defines the operations
 that a Prisoner's Dilemma strategy must support.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defprotocol Prisoner 
   (title [this])
   (play [this])
-  (pay [this x]))</pre></tr><tr><td class="docs"><h1>Predicates</h1>
+  (pay [this x]))</pre></tr><tr><td class="docs"><h3>Predicates</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Cooperation occurs when :coop is played by a strategy.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn cooperated? [x]
   (= :coop x))</pre></tr><tr><td class="docs"><p>Defection occurs when :defect is played by a strategy.</p>
@@ -2580,7 +2580,7 @@ second cooperated.</p>
 If my payoff is less than <em>partner</em> my opponent
 must have defected.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn opponent-defected? [my-payoff]
-  (&lt; my-payoff *partner*))</pre></tr><tr><td class="docs"><h1>Record Keeping Functions</h1>
+  (&lt; my-payoff *partner*))</pre></tr><tr><td class="docs"><h3>Record-keeping Functions</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Takes note of a cooperation by conjoining it to a sequence.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn note-cooperation [results]
   (conj results :coop))</pre></tr><tr><td class="docs"><p>Takes note of a defection by conjoining it to a sequence.</p>
@@ -2594,7 +2594,7 @@ must have defected.</p>
   (map #(pay % *defector*) [a b]))</pre></tr><tr><td class="docs"><p>Reward the backstaber and punish the sucker.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-betrayal [backstabber sucker]
   [(pay backstabber *backstabber*)
-   (pay sucker *sucker*)])</pre></tr><tr><td class="docs"><h1>Strategy Implementations</h1>
+   (pay sucker *sucker*)])</pre></tr><tr><td class="docs"><h3>Strategy Implementations</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>The Sucker strategy always cooperates.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defrecord Sucker [points plays opponent]
   Prisoner 
@@ -2621,7 +2621,7 @@ It will cooperate if given the first move.</p>
   (pay [_ x] (TitForTat. (award x points) 
                          plays
                          (if (opponent-defected? x) (note-defection opponent)
-                           (note-cooperation opponent)))))</pre></tr><tr><td class="docs"><h1>Gameplay Functions</h1>
+                           (note-cooperation opponent)))))</pre></tr><tr><td class="docs"><h3>Gameplay Functions</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Play one round between two strategies and 
 award the appropriate payoffs.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn play-round [[x y]]
