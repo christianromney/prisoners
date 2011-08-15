@@ -134,8 +134,7 @@
                         (if (defected? (last opponent)) (note-defection plays)
                           (note-cooperation plays))
                         opponent))
-  (pay [_ x] (TitForTat. (award x points) 
-                         plays
+  (pay [_ x] (TitForTat. (award x points) plays
                          (if (opponent-defected? x) (note-defection opponent)
                            (note-cooperation opponent)))))
 
