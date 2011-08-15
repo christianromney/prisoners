@@ -4,9 +4,9 @@
 
 ;; ## Prisoner's Dilemma 
 ;;
-;; This is an iterative Prisoner's Dilemma simulation.
+;; This is an iterative [Prisoner's Dilemma](http://en.wikipedia.org/wiki/Prisoner's_dilemma) simulation.
 ;; I've selected the payoffs and names based on
-;; Richard Dawkins' description in The Selfish Gene.
+;; Richard Dawkins' description in [The Selfish Gene](http://www.amazon.com/gp/product/B000SEHIG2/ref=as_li_ss_tl?ie=UTF8&tag=xmlblog-20&linkCode=as2&camp=217145&creative=399373&creativeASIN=B000SEHIG2).
 ;;
 ;; Currently, a given number of rounds can be played between
 ;; strategies. The next goal is to organize a tournament
@@ -24,7 +24,7 @@
 ;; Both types of games above can be influenced by the number
 ;; of friendly or nasty strategies in the competition. The
 ;; final goal of this project will be to visualize and report
-;; on the outcomes of each game using Incanter.
+;; on the outcomes of each game using [Incanter](http://incanter.org/).
 
 ;; ### Payoffs
 
@@ -150,9 +150,7 @@
 ;;
 ;; Next, run `lein compile` to AOT compile the project
 ;;
-;; Then, run `lein repl`
-;; 
-;; Last, type this:
+;; Last, run `lein repl` and type this at the prompt:
 ;;
 ;; <pre><code>
 ;;  (ns game 
