@@ -70,11 +70,7 @@
 (defn inferred-play [payoff]
   (if (< payoff *partner*) :defect :coop))
 
-;; ### Record-keeping Functions
-
-;; Remember something by adding it to a sequence
-(defn remember [results fact]
-  (conj results fact))
+;; ### Payoff Functions
 
 ;; Pay both strategies for cooperation.
 (defn pay-partners [a b]
@@ -95,23 +91,23 @@
 (defrecord Sucker [points plays opponent]
   Prisoner 
   (title [_] "Sucker")
-  (play [_] (Sucker. points (remember plays :coop) opponent))
-  (pay [_ x] (Sucker. (remember points x) plays (remember opponent (inferred-play x)))))
+  (play [_] (Sucker. points (conj plays :coop) opponent))
+  (pay [_ x] (Sucker. (conj points x) plays (conj opponent (inferred-play x)))))
   
 ;; The Cheat strategy always defects.
 (defrecord Cheat [points plays opponent]
   Prisoner
   (title [_] "Cheat")
-  (play [_] (Cheat. points (remember plays :defect) opponent))
-  (pay [_ x] (Cheat. (remember points x) plays (remember opponent (inferred-play x))))) 
+  (play [_] (Cheat. points (conj plays :defect) opponent))
+  (pay [_ x] (Cheat. (conj points x) plays (conj opponent (inferred-play x))))) 
 
 ;; Tit-For-Tat will always play whatever its opponent played last. 
 ;; It will cooperate if given the first move.
 (defrecord TitForTat [points plays opponent]
   Prisoner
   (title [_] "TitForTat")
-  (play [_] (TitForTat. points (remember plays (or (last opponent) :coop)) opponent))
-  (pay [_ x] (TitForTat. (remember points x) plays (remember opponent (inferred-play x)))))
+  (play [_] (TitForTat. points (conj plays (or (last opponent) :coop)) opponent))
+  (pay [_ x] (TitForTat. (conj points x) plays (conj opponent (inferred-play x)))))
 
 ;; ### Gameplay Functions
 
