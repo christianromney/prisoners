@@ -2532,9 +2532,9 @@ $(document).ready(function() {
   (:require clojure.string)
   (:use [clojure.contrib.combinatorics :as combo]))</pre></tr><tr><td class="docs"><h2>Prisoner's Dilemma</h2>
 
-<p>This is an iterative Prisoner's Dilemma simulation.
+<p>This is an iterative <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a> simulation.
 I've selected the payoffs and names based on
-Richard Dawkins' description in The Selfish Gene.</p>
+Richard Dawkins' description in <a href="http://www.amazon.com/gp/product/B000SEHIG2/ref=as_li_ss_tl?ie=UTF8&amp;tag=xmlblog-20&amp;linkCode=as2&amp;camp=217145&amp;creative=399373&amp;creativeASIN=B000SEHIG2">The Selfish Gene</a>.</p>
 
 <p>Currently, a given number of rounds can be played between
 strategies. The next goal is to organize a tournament
@@ -2552,7 +2552,7 @@ number of generations.</p>
 <p>Both types of games above can be influenced by the number
 of friendly or nasty strategies in the competition. The
 final goal of this project will be to visualize and report
-on the outcomes of each game using Incanter.</p>
+on the outcomes of each game using <a href="http://incanter.org/">Incanter</a>.</p>
 </td><td class="codes" /></tr><tr><td class="docs"><h3>Payoffs</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Payoff for the cooperator when the other strategy defects.</p>
 </td><td class="codes" /><pre class="brush: clojure">(def *sucker* 0)</pre></tr><tr><td class="docs"><p>Payoff when both strategies defect.</p>
@@ -2631,9 +2631,7 @@ Example: (play-rounds 10 Sucker Cheat)</p>
 
 <p>Next, run <code>lein compile</code> to AOT compile the project</p>
 
-<p>Then, run <code>lein repl</code></p>
-
-<p>Last, type this:</p>
+<p>Last, run <code>lein repl</code> and type this at the prompt:</p>
 
 <pre><code>
 (ns game 
