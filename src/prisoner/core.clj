@@ -69,13 +69,13 @@
 
 ;; Betrayal is when the first strategy defected and the 
 ;; second cooperated.
-(defn betrayed? [x y]
+(defn betrayal? [x y]
   (and (defected? x) (cooperated? y)))
 
 ;; Infers what the opponent played based on payoff.
 ;; If my payoff is less than *partner* my opponent
-;; must have defected.
-(defn opponent-defected? [my-payoff]
+;; must have betrayed me.
+(defn betrayed? [my-payoff]
   (< my-payoff *partner*))
 
 ;; ### Record-keeping Functions
@@ -113,7 +113,7 @@
   (title [_] "Sucker")
   (play [_] (Sucker. points (note-cooperation plays) opponent))
   (pay [_ x] (Sucker. (award x points) plays 
-                           (if (opponent-defected? x) (note-defection opponent)
+                           (if (betrayed? x) (note-defection opponent)
                              (note-cooperation opponent)))))
   
 ;; The Cheat strategy always defects.
@@ -122,7 +122,7 @@
   (title [_] "Cheat")
   (play [_] (Cheat. points (note-defection plays) opponent))
   (pay [_ x] (Cheat. (award x points) plays
-                           (if (opponent-defected? x) (note-defection opponent)
+                           (if (betrayed? x) (note-defection opponent)
                              (note-cooperation opponent)))))
 
 ;; Tit-For-Tat will always play whatever its opponent played last. 
@@ -135,7 +135,7 @@
                           (note-cooperation plays))
                         opponent))
   (pay [_ x] (TitForTat. (award x points) plays
-                         (if (opponent-defected? x) (note-defection opponent)
+                         (if (betrayed? x) (note-defection opponent)
                            (note-cooperation opponent)))))
 
 ;; ### Gameplay Functions
@@ -149,7 +149,7 @@
         b (last (:plays player-b))]
     (cond (mutual-cooperation? a b) (pay-partners player-a player-b)
           (mutual-defection? a b) (pay-defectors player-a player-b)
-          (betrayed? a b) (pay-betrayal player-a player-b)
+          (betrayal? a b) (pay-betrayal player-a player-b)
           :else (pay-betrayal player-b player-a))))
 
 ;; Plays a given number of rounds between two named strategies.

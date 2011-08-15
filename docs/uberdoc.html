@@ -2575,11 +2575,11 @@ that a Prisoner's Dilemma strategy must support.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn mutual-defection? [x y]
   (and (defected? x) (defected? y)))</pre></tr><tr><td class="docs"><p>Betrayal is when the first strategy defected and the 
 second cooperated.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn betrayed? [x y]
+</td><td class="codes" /><pre class="brush: clojure">(defn betrayal? [x y]
   (and (defected? x) (cooperated? y)))</pre></tr><tr><td class="docs"><p>Infers what the opponent played based on payoff.
 If my payoff is less than <em>partner</em> my opponent
-must have defected.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn opponent-defected? [my-payoff]
+must have betrayed me.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn betrayed? [my-payoff]
   (&lt; my-payoff *partner*))</pre></tr><tr><td class="docs"><h3>Record-keeping Functions</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Takes note of a cooperation by conjoining it to a sequence.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn note-cooperation [results]
@@ -2601,14 +2601,14 @@ must have defected.</p>
   (title [_] &quot;Sucker&quot;)
   (play [_] (Sucker. points (note-cooperation plays) opponent))
   (pay [_ x] (Sucker. (award x points) plays 
-                           (if (opponent-defected? x) (note-defection opponent)
+                           (if (betrayed? x) (note-defection opponent)
                              (note-cooperation opponent)))))</pre></tr><tr><td class="docs"><p>The Cheat strategy always defects.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defrecord Cheat [points plays opponent]
   Prisoner
   (title [_] &quot;Cheat&quot;)
   (play [_] (Cheat. points (note-defection plays) opponent))
   (pay [_ x] (Cheat. (award x points) plays
-                           (if (opponent-defected? x) (note-defection opponent)
+                           (if (betrayed? x) (note-defection opponent)
                              (note-cooperation opponent)))))</pre></tr><tr><td class="docs"><p>Tit-For-Tat will always play whatever its opponent played last. 
 It will cooperate if given the first move.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defrecord TitForTat [points plays opponent]
@@ -2618,9 +2618,8 @@ It will cooperate if given the first move.</p>
                         (if (defected? (last opponent)) (note-defection plays)
                           (note-cooperation plays))
                         opponent))
-  (pay [_ x] (TitForTat. (award x points) 
-                         plays
-                         (if (opponent-defected? x) (note-defection opponent)
+  (pay [_ x] (TitForTat. (award x points) plays
+                         (if (betrayed? x) (note-defection opponent)
                            (note-cooperation opponent)))))</pre></tr><tr><td class="docs"><h3>Gameplay Functions</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Play one round between two strategies and 
 award the appropriate payoffs.</p>
@@ -2631,7 +2630,7 @@ award the appropriate payoffs.</p>
         b (last (:plays player-b))]
     (cond (mutual-cooperation? a b) (pay-partners player-a player-b)
           (mutual-defection? a b) (pay-defectors player-a player-b)
-          (betrayed? a b) (pay-betrayal player-a player-b)
+          (betrayal? a b) (pay-betrayal player-a player-b)
           :else (pay-betrayal player-b player-a))))</pre></tr><tr><td class="docs"><p>Plays a given number of rounds between two named strategies.
 Use of a macro here allows one to pass in the names of the strategies.
 Example: (play-rounds 10 Sucker Cheat)</p>
