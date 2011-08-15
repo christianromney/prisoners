@@ -51,46 +51,30 @@
 
 ;; ### Predicates
 
-;; Cooperation occurs when :coop is played by a strategy.
-(defn cooperated? [x]
-  (= :coop x))
-
-;; Defection occurs when :defect is played by a strategy.
-(defn defected? [x]
-  (= :defect x))
-
 ;; Mutual cooperation is when both strategies cooperated.
 (defn mutual-cooperation? [x y]
-  (and (cooperated? x) (cooperated? y)))
+  (and (= :coop x) (= :coop y)))
 
 ;; Mutual defection is when both strategies defected.
 (defn mutual-defection? [x y]
-  (and (defected? x) (defected? y)))
+  (and (= :defect x) (= :defect y)))
 
 ;; Betrayal is when the first strategy defected and the 
 ;; second cooperated.
 (defn betrayal? [x y]
-  (and (defected? x) (cooperated? y)))
+  (and (= :defect x) (= :coop y)))
 
 ;; Infers what the opponent played based on payoff.
 ;; If my payoff is less than *partner* my opponent
 ;; must have betrayed me.
-(defn betrayed? [my-payoff]
-  (< my-payoff *partner*))
+(defn inferred-play [payoff]
+  (if (< payoff *partner*) :defect :coop))
 
 ;; ### Record-keeping Functions
 
-;; Takes note of a cooperation by conjoining it to a sequence.
-(defn note-cooperation [results]
-  (conj results :coop))
-
-;; Takes note of a defection by conjoining it to a sequence.
-(defn note-defection [results]
-  (conj results :defect))
-
-;; Awards points by conjoining the value to a sequence.
-(defn award [n points]
-  (conj points n))
+;; Remember something by adding it to a sequence
+(defn remember [results fact]
+  (conj results fact))
 
 ;; Pay both strategies for cooperation.
 (defn pay-partners [a b]
@@ -111,32 +95,23 @@
 (defrecord Sucker [points plays opponent]
   Prisoner 
   (title [_] "Sucker")
-  (play [_] (Sucker. points (note-cooperation plays) opponent))
-  (pay [_ x] (Sucker. (award x points) plays 
-                           (if (betrayed? x) (note-defection opponent)
-                             (note-cooperation opponent)))))
+  (play [_] (Sucker. points (remember plays :coop) opponent))
+  (pay [_ x] (Sucker. (remember points x) plays (remember opponent (inferred-play x)))))
   
 ;; The Cheat strategy always defects.
 (defrecord Cheat [points plays opponent]
   Prisoner
   (title [_] "Cheat")
-  (play [_] (Cheat. points (note-defection plays) opponent))
-  (pay [_ x] (Cheat. (award x points) plays
-                           (if (betrayed? x) (note-defection opponent)
-                             (note-cooperation opponent)))))
+  (play [_] (Cheat. points (remember plays :defect) opponent))
+  (pay [_ x] (Cheat. (remember points x) plays (remember opponent (inferred-play x))))) 
 
 ;; Tit-For-Tat will always play whatever its opponent played last. 
 ;; It will cooperate if given the first move.
 (defrecord TitForTat [points plays opponent]
   Prisoner
   (title [_] "TitForTat")
-  (play [_] (TitForTat. points
-                        (if (defected? (last opponent)) (note-defection plays)
-                          (note-cooperation plays))
-                        opponent))
-  (pay [_ x] (TitForTat. (award x points) plays
-                         (if (betrayed? x) (note-defection opponent)
-                           (note-cooperation opponent)))))
+  (play [_] (TitForTat. points (remember plays (or (last opponent) :coop)) opponent))
+  (pay [_ x] (TitForTat. (remember points x) plays (remember opponent (inferred-play x)))))
 
 ;; ### Gameplay Functions
 
