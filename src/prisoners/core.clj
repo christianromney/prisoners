@@ -1,4 +1,4 @@
-(ns prisoner.core
+(ns prisoners.core
   (:require clojure.string)
   (:use [clojure.contrib.combinatorics :as combo]))
 

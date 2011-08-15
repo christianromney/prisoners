@@ -1,5 +1,5 @@
-(ns prisoner.test.core
-  (:use [prisoner.core])
+(ns prisoners.test.core
+  (:use [prisoners.core])
   (:use [clojure.test]))
 
 (deftest replace-me ;; FIXME: write
