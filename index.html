@@ -2526,7 +2526,7 @@ $(document).ready(function() {
     ul.css('margin-top', '0px')
 
 })
-</script><title>prisoners -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">prisoners</h1><h2 class="project-version">0.0.2-SNAPSHOT</h2><br /><p>A Prisoner's Dilemma simulation</p>
+</script><title>prisoners -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">prisoners</h1><h2 class="project-version">0.0.3-SNAPSHOT</h2><br /><p>A Prisoner's Dilemma simulation</p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.1</td></tr><tr><td class="dep-name">org.clojure/clojure-contrib</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.6.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#prisoners.core">prisoners.core</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#prisoners.core" name="prisoners.core"><h1 class="project-name">prisoners.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes" /><pre class="brush: clojure">(ns prisoners.core
   (:require clojure.string)
@@ -2565,29 +2565,21 @@ that a Prisoner's Dilemma strategy must support.</p>
   (title [this])
   (play [this])
   (pay [this x]))</pre></tr><tr><td class="docs"><h3>Predicates</h3>
-</td><td class="codes" /></tr><tr><td class="docs"><p>Cooperation occurs when :coop is played by a strategy.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn cooperated? [x]
-  (= :coop x))</pre></tr><tr><td class="docs"><p>Defection occurs when :defect is played by a strategy.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn defected? [x]
-  (= :defect x))</pre></tr><tr><td class="docs"><p>Mutual cooperation is when both strategies cooperated.</p>
+</td><td class="codes" /></tr><tr><td class="docs"><p>Mutual cooperation is when both strategies cooperated.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn mutual-cooperation? [x y]
-  (and (cooperated? x) (cooperated? y)))</pre></tr><tr><td class="docs"><p>Mutual defection is when both strategies defected.</p>
+  (and (= :coop x) (= :coop y)))</pre></tr><tr><td class="docs"><p>Mutual defection is when both strategies defected.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn mutual-defection? [x y]
-  (and (defected? x) (defected? y)))</pre></tr><tr><td class="docs"><p>Betrayal is when the first strategy defected and the 
+  (and (= :defect x) (= :defect y)))</pre></tr><tr><td class="docs"><p>Betrayal is when the first strategy defected and the 
 second cooperated.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn betrayal? [x y]
-  (and (defected? x) (cooperated? y)))</pre></tr><tr><td class="docs"><p>Infers what the opponent played based on payoff.
+  (and (= :defect x) (= :coop y)))</pre></tr><tr><td class="docs"><p>Infers what the opponent played based on payoff.
 If my payoff is less than <em>partner</em> my opponent
 must have betrayed me.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn betrayed? [my-payoff]
-  (&lt; my-payoff *partner*))</pre></tr><tr><td class="docs"><h3>Record-keeping Functions</h3>
-</td><td class="codes" /></tr><tr><td class="docs"><p>Takes note of a cooperation by conjoining it to a sequence.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn note-cooperation [results]
-  (conj results :coop))</pre></tr><tr><td class="docs"><p>Takes note of a defection by conjoining it to a sequence.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn note-defection [results]
-  (conj results :defect))</pre></tr><tr><td class="docs"><p>Awards points by conjoining the value to a sequence.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn award [n points]
-  (conj points n))</pre></tr><tr><td class="docs"><p>Pay both strategies for cooperation.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn inferred-play [payoff]
+  (if (&lt; payoff *partner*) :defect :coop))</pre></tr><tr><td class="docs"><h3>Record-keeping Functions</h3>
+</td><td class="codes" /></tr><tr><td class="docs"><p>Remember something by adding it to a sequence</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn remember [results fact]
+  (conj results fact))</pre></tr><tr><td class="docs"><p>Pay both strategies for cooperation.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-partners [a b]
   (map #(pay % *partner*) [a b]))</pre></tr><tr><td class="docs"><p>Pay both strategies for defection.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-defectors [a b]
@@ -2599,28 +2591,19 @@ must have betrayed me.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defrecord Sucker [points plays opponent]
   Prisoner 
   (title [_] &quot;Sucker&quot;)
-  (play [_] (Sucker. points (note-cooperation plays) opponent))
-  (pay [_ x] (Sucker. (award x points) plays 
-                           (if (betrayed? x) (note-defection opponent)
-                             (note-cooperation opponent)))))</pre></tr><tr><td class="docs"><p>The Cheat strategy always defects.</p>
+  (play [_] (Sucker. points (remember plays :coop) opponent))
+  (pay [_ x] (Sucker. (remember points x) plays (remember opponent (inferred-play x)))))</pre></tr><tr><td class="docs"><p>The Cheat strategy always defects.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defrecord Cheat [points plays opponent]
   Prisoner
   (title [_] &quot;Cheat&quot;)
-  (play [_] (Cheat. points (note-defection plays) opponent))
-  (pay [_ x] (Cheat. (award x points) plays
-                           (if (betrayed? x) (note-defection opponent)
-                             (note-cooperation opponent)))))</pre></tr><tr><td class="docs"><p>Tit-For-Tat will always play whatever its opponent played last. 
+  (play [_] (Cheat. points (remember plays :defect) opponent))
+  (pay [_ x] (Cheat. (remember points x) plays (remember opponent (inferred-play x))))) </pre></tr><tr><td class="docs"><p>Tit-For-Tat will always play whatever its opponent played last. 
 It will cooperate if given the first move.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defrecord TitForTat [points plays opponent]
   Prisoner
   (title [_] &quot;TitForTat&quot;)
-  (play [_] (TitForTat. points
-                        (if (defected? (last opponent)) (note-defection plays)
-                          (note-cooperation plays))
-                        opponent))
-  (pay [_ x] (TitForTat. (award x points) plays
-                         (if (betrayed? x) (note-defection opponent)
-                           (note-cooperation opponent)))))</pre></tr><tr><td class="docs"><h3>Gameplay Functions</h3>
+  (play [_] (TitForTat. points (remember plays (or (last opponent) :coop)) opponent))
+  (pay [_ x] (TitForTat. (remember points x) plays (remember opponent (inferred-play x)))))</pre></tr><tr><td class="docs"><h3>Gameplay Functions</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Play one round between two strategies and 
 award the appropriate payoffs.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn play-round [[x y]]
