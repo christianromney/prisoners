@@ -142,5 +142,21 @@
 
 ;; Calculates the resulting scores for each of the strategies.
 (defn report [strategies]
-  (clojure.string/join "; " (map summarize strategies)))
+  (clojure.string/join ", " (map summarize strategies)))
 
+;; ### Running the Simulation
+;;
+;; First, run `lein compile` to AOT compile the project
+;;
+;; Next, run `lein repl`
+;; 
+;; Last, type this:
+;;
+;; <pre><code>
+;;  (ns game 
+;;    (:use prisoners.core) 
+;;    (:import [prisoners.core Sucker Cheat TitForTat]))
+;;
+;;  (report (play-rounds 10 Sucker Cheat))
+;;
+;; </code></pre>
