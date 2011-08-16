@@ -80,7 +80,7 @@
 (defn pay-defectors [a b]
   (map #(pay % *defector*) [a b]))
 
-;; Reward the backstaber and punish the sucker.
+;; Reward the backstabber and punish the sucker.
 (defn pay-betrayal [backstabber sucker]
   [(pay backstabber *backstabber*)
    (pay sucker *sucker*)])
