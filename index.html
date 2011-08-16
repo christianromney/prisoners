@@ -2581,7 +2581,7 @@ must have betrayed me.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-partners [a b]
   (map #(pay % *partner*) [a b]))</pre></tr><tr><td class="docs"><p>Pay both strategies for defection.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-defectors [a b]
-  (map #(pay % *defector*) [a b]))</pre></tr><tr><td class="docs"><p>Reward the backstaber and punish the sucker.</p>
+  (map #(pay % *defector*) [a b]))</pre></tr><tr><td class="docs"><p>Reward the backstabber and punish the sucker.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-betrayal [backstabber sucker]
   [(pay backstabber *backstabber*)
    (pay sucker *sucker*)])</pre></tr><tr><td class="docs"><h3>Strategy Implementations</h3>
