@@ -66,7 +66,7 @@
   (assoc strategy k (conj (k strategy) v)))
 
 ;; Infers what the opponent played based on payoff.
-;; If my payoff is less than *partner* my opponent
+;; If my payoff is less than `*partner*` my opponent
 ;; must have betrayed me.
 (defn inferred-play [payoff]
   (if (< payoff *partner*) :defect :coop))
@@ -97,18 +97,18 @@
 ;; ### Strategy Implementations
 
 ;; The `play` multimethod dispatches on the
-;; data structure's *name* attribute.
+;; data structure's `:name` attribute.
 (defmulti play :name)
 
-;; The *sucker* strategy always cooperates
+;; The `:sucker` strategy always cooperates
 (defmethod play :sucker [this]
   (add-item this :plays :coop))
 
-;; The *cheat* strategy always defects
+;; The `:cheat` strategy always defects
 (defmethod play :cheat [this]
   (add-item this :plays :defect))
   
-;; The *tit-for-tat* strategy plays whatever
+;; The `:tit-for-tat` strategy plays whatever
 ;; its opponent played last and cooperates
 ;; if given the first move.
 (defmethod play :tit-for-tat [this]
@@ -129,8 +129,7 @@
           :else (pay-betrayal player-b player-a))))
 
 ;; Plays a given number of rounds between two named strategies.
-;; Use of a macro here allows one to pass in the names of the strategies.
-;; Example: (play-rounds 10 Sucker Cheat)
+;; Example: `(play-rounds 10 :sucker :cheat)`
 (defn play-rounds [rounds x y]
   (last 
     (take (inc rounds)
