@@ -2526,7 +2526,7 @@ $(document).ready(function() {
     ul.css('margin-top', '0px')
 
 })
-</script><title>prisoners -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">prisoners</h1><h2 class="project-version">0.0.5-SNAPSHOT</h2><br /><p>A Prisoner's Dilemma simulation</p>
+</script><title>prisoners -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">prisoners</h1><h2 class="project-version">0.0.6-SNAPSHOT</h2><br /><p>A Prisoner's Dilemma simulation</p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.1</td></tr><tr><td class="dep-name">org.clojure/clojure-contrib</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.6.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#prisoners.core">prisoners.core</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#prisoners.core" name="prisoners.core"><h1 class="project-name">prisoners.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes" /><pre class="brush: clojure">(ns prisoners.core
   (:require clojure.string)
@@ -2554,17 +2554,13 @@ of friendly or nasty strategies in the competition. The
 final goal of this project will be to visualize and report
 on the outcomes of each game using <a href="http://incanter.org/">Incanter</a>.</p>
 </td><td class="codes" /></tr><tr><td class="docs"><h3>Payoffs</h3>
+</td><td class="codes" /></tr><tr><td class="docs"><p>The payoff amounts are held in private vars that are visible
+only within the namespace.</p>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Payoff for the cooperator when the other strategy defects.</p>
-</td><td class="codes" /><pre class="brush: clojure">(def *sucker* 0)</pre></tr><tr><td class="docs"><p>Payoff when both strategies defect.</p>
-</td><td class="codes" /><pre class="brush: clojure">(def *defector* 1)</pre></tr><tr><td class="docs"><p>Payoff when both strategies cooperate.</p>
-</td><td class="codes" /><pre class="brush: clojure">(def *partner* 3)</pre></tr><tr><td class="docs"><p>Payoff for the defector when the other cooperates.</p>
-</td><td class="codes" /><pre class="brush: clojure">(def *backstabber* 5)</pre></tr><tr><td class="docs"><h3>Strategy Definition</h3>
-</td><td class="codes" /></tr><tr><td class="docs"><p>The Prisoner protocol defines the operations
-that a Prisoner's Dilemma strategy must support.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defprotocol Prisoner 
-  (title [this])
-  (play [this])
-  (pay [this x]))</pre></tr><tr><td class="docs"><h3>Predicates</h3>
+</td><td class="codes" /><pre class="brush: clojure">(def ^{:private true} *sucker* 0)</pre></tr><tr><td class="docs"><p>Payoff when both strategies defect.</p>
+</td><td class="codes" /><pre class="brush: clojure">(def ^{:private true} *defector* 1)</pre></tr><tr><td class="docs"><p>Payoff when both strategies cooperate.</p>
+</td><td class="codes" /><pre class="brush: clojure">(def ^{:private true} *partner* 3)</pre></tr><tr><td class="docs"><p>Payoff for the defector when the other cooperates.</p>
+</td><td class="codes" /><pre class="brush: clojure">(def ^{:private true} *backstabber* 5)</pre></tr><tr><td class="docs"><h3>Predicates</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Mutual cooperation is when both strategies cooperated.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn mutual-cooperation? [x y]
   (and (= :coop x) (= :coop y)))</pre></tr><tr><td class="docs"><p>Mutual defection is when both strategies defected.</p>
@@ -2572,12 +2568,21 @@ that a Prisoner's Dilemma strategy must support.</p>
   (and (= :defect x) (= :defect y)))</pre></tr><tr><td class="docs"><p>Betrayal is when the first strategy defected and the 
 second cooperated.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn betrayal? [x y]
-  (and (= :defect x) (= :coop y)))</pre></tr><tr><td class="docs"><p>Infers what the opponent played based on payoff.
+  (and (= :defect x) (= :coop y)))</pre></tr><tr><td class="docs"><h3>Helper Functions</h3>
+</td><td class="codes" /></tr><tr><td class="docs"><p>General-purpose map collection modifier.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn add-item [strategy k v]
+  (assoc strategy k (conj (k strategy) v)))</pre></tr><tr><td class="docs"><p>Infers what the opponent played based on payoff.
 If my payoff is less than <em>partner</em> my opponent
 must have betrayed me.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn inferred-play [payoff]
   (if (&lt; payoff *partner*) :defect :coop))</pre></tr><tr><td class="docs"><h3>Payoff Functions</h3>
-</td><td class="codes" /></tr><tr><td class="docs"><p>Pay both strategies for cooperation.</p>
+</td><td class="codes" /></tr><tr><td class="docs"><p>The mechanics of payment includes both
+adding the points for the round and 
+recording the opponent's last play.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn pay [strategy x]
+  (add-item 
+    (add-item strategy :points x) 
+    :opponent (inferred-play x)))</pre></tr><tr><td class="docs"><p>Pay both strategies for cooperation.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-partners [a b]
   (map #(pay % *partner*) [a b]))</pre></tr><tr><td class="docs"><p>Pay both strategies for defection.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-defectors [a b]
@@ -2585,23 +2590,17 @@ must have betrayed me.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-betrayal [backstabber sucker]
   [(pay backstabber *backstabber*)
    (pay sucker *sucker*)])</pre></tr><tr><td class="docs"><h3>Strategy Implementations</h3>
-</td><td class="codes" /></tr><tr><td class="docs"><p>The Sucker strategy always cooperates.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defrecord Sucker [points plays opponent]
-  Prisoner 
-  (title [_] &quot;Sucker&quot;)
-  (play [_] (Sucker. points (conj plays :coop) opponent))
-  (pay [_ x] (Sucker. (conj points x) plays (conj opponent (inferred-play x)))))</pre></tr><tr><td class="docs"><p>The Cheat strategy always defects.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defrecord Cheat [points plays opponent]
-  Prisoner
-  (title [_] &quot;Cheat&quot;)
-  (play [_] (Cheat. points (conj plays :defect) opponent))
-  (pay [_ x] (Cheat. (conj points x) plays (conj opponent (inferred-play x))))) </pre></tr><tr><td class="docs"><p>Tit-For-Tat will always play whatever its opponent played last. 
-It will cooperate if given the first move.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defrecord TitForTat [points plays opponent]
-  Prisoner
-  (title [_] &quot;TitForTat&quot;)
-  (play [_] (TitForTat. points (conj plays (or (last opponent) :coop)) opponent))
-  (pay [_ x] (TitForTat. (conj points x) plays (conj opponent (inferred-play x)))))</pre></tr><tr><td class="docs"><h3>Gameplay Functions</h3>
+</td><td class="codes" /></tr><tr><td class="docs"><p>The <code>play</code> multimethod dispatches on the
+data structure's <em>name</em> attribute.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defmulti play :name)</pre></tr><tr><td class="docs"><p>The <em>sucker</em> strategy always cooperates</p>
+</td><td class="codes" /><pre class="brush: clojure">(defmethod play :sucker [this]
+  (add-item this :plays :coop))</pre></tr><tr><td class="docs"><p>The <em>cheat</em> strategy always defects</p>
+</td><td class="codes" /><pre class="brush: clojure">(defmethod play :cheat [this]
+  (add-item this :plays :defect))</pre></tr><tr><td class="docs"><p>The <em>tit-for-tat</em> strategy plays whatever
+its opponent played last and cooperates
+if given the first move.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defmethod play :tit-for-tat [this]
+  (add-item this :plays (or (last (:opponent this)) :coop)))</pre></tr><tr><td class="docs"><h3>Gameplay Functions</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Play one round between two strategies and 
 award the appropriate payoffs.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn play-round [[x y]]
@@ -2615,30 +2614,24 @@ award the appropriate payoffs.</p>
           :else (pay-betrayal player-b player-a))))</pre></tr><tr><td class="docs"><p>Plays a given number of rounds between two named strategies.
 Use of a macro here allows one to pass in the names of the strategies.
 Example: (play-rounds 10 Sucker Cheat)</p>
-</td><td class="codes" /><pre class="brush: clojure">(defmacro play-rounds 
-  [rounds x y]
-  `(last 
-    (take (inc ~rounds)
-      (iterate play-round [(new ~x [] [] []) (new ~y [] [] [])]))))</pre></tr><tr><td class="docs"><p>Produces the sum of a sequence of numbers.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn tally [numbers]
-  (reduce + 0 numbers))</pre></tr><tr><td class="docs"><p>Summarizes a strategy's score.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn play-rounds [rounds x y]
+  (last 
+    (take (inc rounds)
+      (iterate play-round [{:name x :points [] :plays [] :opponent []} 
+                           {:name y :points [] :plays [] :opponent []}]))))</pre></tr><tr><td class="docs"><p>Summarizes a strategy's score.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn summarize [strategy]
-  (str (title strategy) &quot;: &quot; (tally (:points strategy)) &quot; points&quot;))</pre></tr><tr><td class="docs"><p>Calculates the resulting scores for each of the strategies.</p>
+  (str (:name strategy) &quot;: &quot; (reduce + (:points strategy)) &quot; points&quot;))</pre></tr><tr><td class="docs"><p>Calculates the resulting scores for each of the strategies.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn report [strategies]
   (clojure.string/join &quot;, &quot; (map summarize strategies)))</pre></tr><tr><td class="docs"><h3>Running the Simulation</h3>
 
 <p>First, run <code>lein deps</code> to download the dependencies</p>
 
-<p>Next, run <code>lein compile</code> to AOT compile the project</p>
-
-<p>Last, run <code>lein repl</code> and type this at the prompt:</p>
+<p>Then, run <code>lein repl</code> and type this at the prompt:</p>
 
 <pre><code>
-(ns game 
-(:use prisoners.core) 
-(:import [prisoners.core Sucker Cheat TitForTat]))
+(ns game (:use prisoners.core)) 
 
-(report (play-rounds 10 Sucker Cheat))
+(report (play-rounds 10 :sucker :cheat))
 
 </code></pre>
 </td><td class="codes" /></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_prisoners.core">prisoners.core</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
