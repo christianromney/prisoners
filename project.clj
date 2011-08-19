@@ -1,4 +1,4 @@
-(defproject prisoners "0.0.6-SNAPSHOT"
+(defproject prisoners "0.0.7-SNAPSHOT"
   :description "A Prisoner's Dilemma simulation"
   :dev-dependencies [[lein-marginalia "0.6.0"]]
   :dependencies [[org.clojure/clojure "1.2.1"] 

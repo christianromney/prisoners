@@ -136,9 +136,13 @@
       (iterate play-round [{:name x :points [] :plays [] :opponent []} 
                            {:name y :points [] :plays [] :opponent []}]))))
 
+;; Produce a total score as the sum of the points awarded during each round.
+(defn total [strategy]
+  (reduce + (:points strategy)))
+
 ;; Summarizes a strategy's score.
 (defn summarize [strategy]
-  (str (:name strategy) ": " (reduce + (:points strategy)) " points"))
+  (str (:name strategy) ": " (total strategy) " points"))
 
 ;; Calculates the resulting scores for each of the strategies.
 (defn report [strategies]
