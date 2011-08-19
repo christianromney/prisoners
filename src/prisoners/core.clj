@@ -128,13 +128,16 @@
           (betrayal? a b) (pay-betrayal player-a player-b)
           :else (pay-betrayal player-b player-a))))
 
+;; Initializes a data structure for the named strategy
+(defn strategy-map [named]
+  {:name named, :points [], :plays [], :opponent []})
+
 ;; Plays a given number of rounds between two named strategies.
 ;; Example: `(play-rounds 10 :sucker :cheat)`
 (defn play-rounds [rounds x y]
   (last 
     (take (inc rounds)
-      (iterate play-round [{:name x :points [] :plays [] :opponent []} 
-                           {:name y :points [] :plays [] :opponent []}]))))
+      (iterate play-round (map strategy-map [x y])))))
 
 ;; Produce a total score as the sum of the points awarded during each round.
 (defn total [strategy]
