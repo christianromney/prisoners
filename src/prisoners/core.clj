@@ -28,26 +28,21 @@
 
 ;; ### Payoffs
 
+;; The payoff amounts are held in private vars that are visible
+;; only within the namespace.
+
 ;; Payoff for the cooperator when the other strategy defects.
-(def *sucker* 0)
+(def ^{:private true} *sucker* 0)
 
 ;; Payoff when both strategies defect.
-(def *defector* 1)
+(def ^{:private true} *defector* 1)
 
 ;; Payoff when both strategies cooperate.
-(def *partner* 3)
+(def ^{:private true} *partner* 3)
 
 ;; Payoff for the defector when the other cooperates.
-(def *backstabber* 5)
+(def ^{:private true} *backstabber* 5)
 
-;; ### Strategy Definition
-
-;; The Prisoner protocol defines the operations
-;; that a Prisoner's Dilemma strategy must support.
-(defprotocol Prisoner 
-  (title [this])
-  (play [this])
-  (pay [this x]))
 
 ;; ### Predicates
 
@@ -64,6 +59,12 @@
 (defn betrayal? [x y]
   (and (= :defect x) (= :coop y)))
 
+;; ### Helper Functions
+
+;; General-purpose map collection modifier.
+(defn add-item [strategy k v]
+  (assoc strategy k (conj (k strategy) v)))
+
 ;; Infers what the opponent played based on payoff.
 ;; If my payoff is less than *partner* my opponent
 ;; must have betrayed me.
@@ -71,6 +72,14 @@
   (if (< payoff *partner*) :defect :coop))
 
 ;; ### Payoff Functions
+
+;; The mechanics of payment includes both
+;; adding the points for the round and 
+;; recording the opponent's last play.
+(defn pay [strategy x]
+  (add-item 
+    (add-item strategy :points x) 
+    :opponent (inferred-play x)))
 
 ;; Pay both strategies for cooperation.
 (defn pay-partners [a b]
@@ -87,27 +96,23 @@
 
 ;; ### Strategy Implementations
 
-;; The Sucker strategy always cooperates.
-(defrecord Sucker [points plays opponent]
-  Prisoner 
-  (title [_] "Sucker")
-  (play [_] (Sucker. points (conj plays :coop) opponent))
-  (pay [_ x] (Sucker. (conj points x) plays (conj opponent (inferred-play x)))))
-  
-;; The Cheat strategy always defects.
-(defrecord Cheat [points plays opponent]
-  Prisoner
-  (title [_] "Cheat")
-  (play [_] (Cheat. points (conj plays :defect) opponent))
-  (pay [_ x] (Cheat. (conj points x) plays (conj opponent (inferred-play x))))) 
+;; The `play` multimethod dispatches on the
+;; data structure's *name* attribute.
+(defmulti play :name)
 
-;; Tit-For-Tat will always play whatever its opponent played last. 
-;; It will cooperate if given the first move.
-(defrecord TitForTat [points plays opponent]
-  Prisoner
-  (title [_] "TitForTat")
-  (play [_] (TitForTat. points (conj plays (or (last opponent) :coop)) opponent))
-  (pay [_ x] (TitForTat. (conj points x) plays (conj opponent (inferred-play x)))))
+;; The *sucker* strategy always cooperates
+(defmethod play :sucker [this]
+  (add-item this :plays :coop))
+
+;; The *cheat* strategy always defects
+(defmethod play :cheat [this]
+  (add-item this :plays :defect))
+  
+;; The *tit-for-tat* strategy plays whatever
+;; its opponent played last and cooperates
+;; if given the first move.
+(defmethod play :tit-for-tat [this]
+  (add-item this :plays (or (last (:opponent this)) :coop)))
 
 ;; ### Gameplay Functions
 
@@ -126,19 +131,15 @@
 ;; Plays a given number of rounds between two named strategies.
 ;; Use of a macro here allows one to pass in the names of the strategies.
 ;; Example: (play-rounds 10 Sucker Cheat)
-(defmacro play-rounds 
-  [rounds x y]
-  `(last 
-    (take (inc ~rounds)
-      (iterate play-round [(new ~x [] [] []) (new ~y [] [] [])]))))
-
-;; Produces the sum of a sequence of numbers.
-(defn tally [numbers]
-  (reduce + 0 numbers))
+(defn play-rounds [rounds x y]
+  (last 
+    (take (inc rounds)
+      (iterate play-round [{:name x :points [] :plays [] :opponent []} 
+                           {:name y :points [] :plays [] :opponent []}]))))
 
 ;; Summarizes a strategy's score.
 (defn summarize [strategy]
-  (str (title strategy) ": " (tally (:points strategy)) " points"))
+  (str (:name strategy) ": " (reduce + (:points strategy)) " points"))
 
 ;; Calculates the resulting scores for each of the strategies.
 (defn report [strategies]
@@ -148,15 +149,11 @@
 ;;
 ;; First, run `lein deps` to download the dependencies
 ;;
-;; Next, run `lein compile` to AOT compile the project
-;;
-;; Last, run `lein repl` and type this at the prompt:
+;; Then, run `lein repl` and type this at the prompt:
 ;;
 ;; <pre><code>
-;;  (ns game 
-;;    (:use prisoners.core) 
-;;    (:import [prisoners.core Sucker Cheat TitForTat]))
+;;  (ns game (:use prisoners.core)) 
 ;;
-;;  (report (play-rounds 10 Sucker Cheat))
+;;  (report (play-rounds 10 :sucker :cheat))
 ;;
 ;; </code></pre>
