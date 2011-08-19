@@ -108,11 +108,25 @@
 (defmethod play :cheat [this]
   (add-item this :plays :defect))
   
+;; The `:grudger` strategy will cooperate until its
+;; opponent defects. Thereafter, it will always defect.
+;; It is less *forgiving* than `:tit-for-tat`.
+(defmethod play :grudger [this]
+  (if (some #(= :defect %) (:opponent this))
+    (add-item this :plays :defect)
+    (add-item this :plays :coop)))
+
 ;; The `:tit-for-tat` strategy plays whatever
 ;; its opponent played last and cooperates
 ;; if given the first move.
 (defmethod play :tit-for-tat [this]
   (add-item this :plays (or (last (:opponent this)) :coop)))
+
+;; The `:random` strategy is a baseline for comparison.
+;; Any given move is randomly chosen to be cooperate or
+;; defect.
+(defmethod play :random [this]
+  (add-item this :plays (rand-nth [:defect :coop])))
 
 ;; ### Gameplay Functions
 

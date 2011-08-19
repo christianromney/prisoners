@@ -2526,7 +2526,7 @@ $(document).ready(function() {
     ul.css('margin-top', '0px')
 
 })
-</script><title>prisoners -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">prisoners</h1><h2 class="project-version">0.0.8-SNAPSHOT</h2><br /><p>A Prisoner's Dilemma simulation</p>
+</script><title>prisoners -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">prisoners</h1><h2 class="project-version">0.0.9-SNAPSHOT</h2><br /><p>A Prisoner's Dilemma simulation</p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.1</td></tr><tr><td class="dep-name">org.clojure/clojure-contrib</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.6.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#prisoners.core">prisoners.core</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#prisoners.core" name="prisoners.core"><h1 class="project-name">prisoners.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes" /><pre class="brush: clojure">(ns prisoners.core
   (:require clojure.string)
@@ -2596,11 +2596,21 @@ data structure's <code>:name</code> attribute.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmethod play :sucker [this]
   (add-item this :plays :coop))</pre></tr><tr><td class="docs"><p>The <code>:cheat</code> strategy always defects</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmethod play :cheat [this]
-  (add-item this :plays :defect))</pre></tr><tr><td class="docs"><p>The <code>:tit-for-tat</code> strategy plays whatever
+  (add-item this :plays :defect))</pre></tr><tr><td class="docs"><p>The <code>:grudger</code> strategy will cooperate until its
+opponent defects. Thereafter, it will always defect.
+It is less <em>forgiving</em> than <code>:tit-for-tat</code>.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defmethod play :grudger [this]
+  (if (some #(= :defect %) (:opponent this))
+    (add-item this :plays :defect)
+    (add-item this :plays :coop)))</pre></tr><tr><td class="docs"><p>The <code>:tit-for-tat</code> strategy plays whatever
 its opponent played last and cooperates
 if given the first move.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmethod play :tit-for-tat [this]
-  (add-item this :plays (or (last (:opponent this)) :coop)))</pre></tr><tr><td class="docs"><h3>Gameplay Functions</h3>
+  (add-item this :plays (or (last (:opponent this)) :coop)))</pre></tr><tr><td class="docs"><p>The <code>:random</code> strategy is a baseline for comparison.
+Any given move is randomly chosen to be cooperate or
+defect.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defmethod play :random [this]
+  (add-item this :plays (rand-nth [:defect :coop])))</pre></tr><tr><td class="docs"><h3>Gameplay Functions</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Play one round between two strategies and 
 award the appropriate payoffs.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn play-round [[x y]]

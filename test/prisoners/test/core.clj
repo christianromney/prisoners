@@ -39,3 +39,17 @@
       (and 
         (= 6 (last x)) 
         (= 1 (last y))) ":cheat 6, :tit-fot-tat 1")))
+
+(deftest test-cheat-grudger
+  (let [[x y] (score-round 2 :cheat :grudger)]
+    (is
+      (and
+        (= 6 (score x))
+        (= 1 (score y))) ":cheat 6, :grudger 1")))
+
+(deftest test-grudger-tit-for-tat
+  (let [[x y] (score-round 2 :grudger :tit-for-tat)]
+    (is
+      (and
+        (= 6 (last x))
+        (= 6 (last y))) ":grudger 6, :tit-fot-tat 6")))
