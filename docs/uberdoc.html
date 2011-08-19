@@ -2600,9 +2600,8 @@ data structure's <code>:name</code> attribute.</p>
 opponent defects. Thereafter, it will always defect.
 It is less <em>forgiving</em> than <code>:tit-for-tat</code>.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmethod play :grudger [this]
-  (if (some #(= :defect %) (:opponent this))
-    (add-item this :plays :defect)
-    (add-item this :plays :coop)))</pre></tr><tr><td class="docs"><p>The <code>:tit-for-tat</code> strategy plays whatever
+  (add-item this :plays
+    (if (some #(= :defect %) (:opponent this)) :defect :coop)))</pre></tr><tr><td class="docs"><p>The <code>:tit-for-tat</code> strategy plays whatever
 its opponent played last and cooperates
 if given the first move.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmethod play :tit-for-tat [this]

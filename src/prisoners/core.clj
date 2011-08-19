@@ -112,9 +112,8 @@
 ;; opponent defects. Thereafter, it will always defect.
 ;; It is less *forgiving* than `:tit-for-tat`.
 (defmethod play :grudger [this]
-  (if (some #(= :defect %) (:opponent this))
-    (add-item this :plays :defect)
-    (add-item this :plays :coop)))
+  (add-item this :plays
+    (if (some #(= :defect %) (:opponent this)) :defect :coop)))
 
 ;; The `:tit-for-tat` strategy plays whatever
 ;; its opponent played last and cooperates
