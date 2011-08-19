@@ -17,7 +17,6 @@ having fun.
 ## Getting Started
 
 - Run ```lein deps``` to download the dependencies
-- Run ```lein compile``` to generate the classes
 - Run ```lein repl``` to experiment
 - Run ```lein marg``` to generate the documentation
 
@@ -26,9 +25,8 @@ having fun.
 - Drive the implementation with tests
 - Build the language up to the problem
 - Create the game and tournament abstractions
-- Records seem like overkill given the duplication they introduce (pay...)
-  Maybe just a map / multimethods? ```pay``` can be a regular function and
-  perhaps title can be metadata?
+- Create more strategies (ten would be nice)!
+- Use (clojure.contrib.combinatorics/selections [s1 s2 ... sn] 2) for the pairings
 
 ## License
 
