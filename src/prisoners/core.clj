@@ -62,7 +62,7 @@
 ;; ### Helper Functions
 
 ;; General-purpose map collection modifier.
-(defn add-item [strategy k v]
+(defn add-to [strategy k v]
   (assoc strategy k (conj (k strategy) v)))
 
 ;; Infers what the opponent played based on payoff.
@@ -77,8 +77,8 @@
 ;; adding the points for the round and 
 ;; recording the opponent's last play.
 (defn pay [strategy x]
-  (add-item 
-    (add-item strategy :points x) 
+  (add-to 
+    (add-to strategy :points x) 
     :opponent (inferred-play x)))
 
 ;; Pay both strategies for cooperation.
@@ -102,30 +102,30 @@
 
 ;; The `:sucker` strategy always cooperates
 (defmethod play :sucker [this]
-  (add-item this :plays :coop))
+  (add-to this :plays :coop))
 
 ;; The `:cheat` strategy always defects
 (defmethod play :cheat [this]
-  (add-item this :plays :defect))
+  (add-to this :plays :defect))
   
 ;; The `:grudger` strategy will cooperate until its
 ;; opponent defects. Thereafter, it will always defect.
 ;; It is less *forgiving* than `:tit-for-tat`.
 (defmethod play :grudger [this]
-  (add-item this :plays
+  (add-to this :plays
     (if (some #(= :defect %) (:opponent this)) :defect :coop)))
 
 ;; The `:tit-for-tat` strategy plays whatever
 ;; its opponent played last and cooperates
 ;; if given the first move.
 (defmethod play :tit-for-tat [this]
-  (add-item this :plays (or (last (:opponent this)) :coop)))
+  (add-to this :plays (or (last (:opponent this)) :coop)))
 
 ;; The `:random` strategy is a baseline for comparison.
 ;; Any given move is randomly chosen to be cooperate or
 ;; defect.
 (defmethod play :random [this]
-  (add-item this :plays (rand-nth [:defect :coop])))
+  (add-to this :plays (rand-nth [:defect :coop])))
 
 ;; ### Gameplay Functions
 
