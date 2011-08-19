@@ -2572,7 +2572,7 @@ second cooperated.</p>
 </td><td class="codes" /></tr><tr><td class="docs"><p>General-purpose map collection modifier.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn add-item [strategy k v]
   (assoc strategy k (conj (k strategy) v)))</pre></tr><tr><td class="docs"><p>Infers what the opponent played based on payoff.
-If my payoff is less than <em>partner</em> my opponent
+If my payoff is less than <code>*partner*</code> my opponent
 must have betrayed me.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn inferred-play [payoff]
   (if (&lt; payoff *partner*) :defect :coop))</pre></tr><tr><td class="docs"><h3>Payoff Functions</h3>
@@ -2591,12 +2591,12 @@ recording the opponent's last play.</p>
   [(pay backstabber *backstabber*)
    (pay sucker *sucker*)])</pre></tr><tr><td class="docs"><h3>Strategy Implementations</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>The <code>play</code> multimethod dispatches on the
-data structure's <em>name</em> attribute.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defmulti play :name)</pre></tr><tr><td class="docs"><p>The <em>sucker</em> strategy always cooperates</p>
+data structure's <code>:name</code> attribute.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defmulti play :name)</pre></tr><tr><td class="docs"><p>The <code>:sucker</code> strategy always cooperates</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmethod play :sucker [this]
-  (add-item this :plays :coop))</pre></tr><tr><td class="docs"><p>The <em>cheat</em> strategy always defects</p>
+  (add-item this :plays :coop))</pre></tr><tr><td class="docs"><p>The <code>:cheat</code> strategy always defects</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmethod play :cheat [this]
-  (add-item this :plays :defect))</pre></tr><tr><td class="docs"><p>The <em>tit-for-tat</em> strategy plays whatever
+  (add-item this :plays :defect))</pre></tr><tr><td class="docs"><p>The <code>:tit-for-tat</code> strategy plays whatever
 its opponent played last and cooperates
 if given the first move.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmethod play :tit-for-tat [this]
@@ -2612,8 +2612,7 @@ award the appropriate payoffs.</p>
           (mutual-defection? a b) (pay-defectors player-a player-b)
           (betrayal? a b) (pay-betrayal player-a player-b)
           :else (pay-betrayal player-b player-a))))</pre></tr><tr><td class="docs"><p>Plays a given number of rounds between two named strategies.
-Use of a macro here allows one to pass in the names of the strategies.
-Example: (play-rounds 10 Sucker Cheat)</p>
+Example: <code>(play-rounds 10 :sucker :cheat)</code></p>
 </td><td class="codes" /><pre class="brush: clojure">(defn play-rounds [rounds x y]
   (last 
     (take (inc rounds)
