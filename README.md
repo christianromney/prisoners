@@ -22,6 +22,7 @@ having fun.
 
 ## TODO
 
+- Organize the namespace, break functions out into files by logical function
 - Drive the implementation with tests
 - Build the language up to the problem
 - Create the game and tournament abstractions
