@@ -29,6 +29,12 @@ having fun.
 - Create more strategies (ten would be nice)!
 - Use (clojure.contrib.combinatorics/selections [s1 s2 ... sn] 2) for the pairings
 
+## Contributors
+
+Special thanks to these fine folks who contributed to this project:
+
+- [Alan Malloy](https://github.com/amalloy)
+
 ## License
 
 Copyright (C) 2011 Christian Romney
