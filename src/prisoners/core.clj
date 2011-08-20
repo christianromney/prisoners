@@ -47,12 +47,12 @@
 ;; ### Predicates
 
 ;; Mutual cooperation is when both strategies cooperated.
-(defn mutual-cooperation? [x y]
-  (and (= :coop x) (= :coop y)))
+(defn mutual-cooperation? [& players]
+  (every? #{:coop} players))
 
 ;; Mutual defection is when both strategies defected.
-(defn mutual-defection? [x y]
-  (and (= :defect x) (= :defect y)))
+(defn mutual-defection? [& players]
+  (every? #{:defect} players))
 
 ;; Betrayal is when the first strategy defected and the 
 ;; second cooperated.
@@ -63,7 +63,7 @@
 
 ;; General-purpose map collection modifier.
 (defn add-to [strategy k v]
-  (assoc strategy k (conj (k strategy) v)))
+  (update-in strategy [k] conj v))
 
 ;; Infers what the opponent played based on payoff.
 ;; If my payoff is less than `*partner*` my opponent
@@ -77,9 +77,9 @@
 ;; adding the points for the round and 
 ;; recording the opponent's last play.
 (defn pay [strategy x]
-  (add-to 
-    (add-to strategy :points x) 
-    :opponent (inferred-play x)))
+  (-> strategy
+      (add-to :points x)
+      (add-to :opponent (inferred-play x))))
 
 ;; Pay both strategies for cooperation.
 (defn pay-partners [a b]
@@ -113,7 +113,7 @@
 ;; It is less *forgiving* than `:tit-for-tat`.
 (defmethod play :grudger [this]
   (add-to this :plays
-    (if (some #(= :defect %) (:opponent this)) :defect :coop)))
+    (if (some #{:defect} (:opponent this)) :defect :coop)))
 
 ;; The `:tit-for-tat` strategy plays whatever
 ;; its opponent played last and cooperates
@@ -148,9 +148,8 @@
 ;; Plays a given number of rounds between two named strategies.
 ;; Example: `(play-rounds 10 :sucker :cheat)`
 (defn play-rounds [rounds x y]
-  (last 
-    (take (inc rounds)
-      (iterate play-round (map strategy-map [x y])))))
+  (nth (iterate play-round (map strategy-map [x y]))
+       (inc rounds)))
 
 ;; Produce a total score as the sum of the points awarded during each round.
 (defn total [strategy]
