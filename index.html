@@ -2562,16 +2562,16 @@ only within the namespace.</p>
 </td><td class="codes" /><pre class="brush: clojure">(def ^{:private true} *partner* 3)</pre></tr><tr><td class="docs"><p>Payoff for the defector when the other cooperates.</p>
 </td><td class="codes" /><pre class="brush: clojure">(def ^{:private true} *backstabber* 5)</pre></tr><tr><td class="docs"><h3>Predicates</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>Mutual cooperation is when both strategies cooperated.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn mutual-cooperation? [x y]
-  (and (= :coop x) (= :coop y)))</pre></tr><tr><td class="docs"><p>Mutual defection is when both strategies defected.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn mutual-defection? [x y]
-  (and (= :defect x) (= :defect y)))</pre></tr><tr><td class="docs"><p>Betrayal is when the first strategy defected and the 
+</td><td class="codes" /><pre class="brush: clojure">(defn mutual-cooperation? [&amp; players]
+  (every? #{:coop} players))</pre></tr><tr><td class="docs"><p>Mutual defection is when both strategies defected.</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn mutual-defection? [&amp; players]
+  (every? #{:defect} players))</pre></tr><tr><td class="docs"><p>Betrayal is when the first strategy defected and the 
 second cooperated.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn betrayal? [x y]
   (and (= :defect x) (= :coop y)))</pre></tr><tr><td class="docs"><h3>Helper Functions</h3>
 </td><td class="codes" /></tr><tr><td class="docs"><p>General-purpose map collection modifier.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn add-to [strategy k v]
-  (assoc strategy k (conj (k strategy) v)))</pre></tr><tr><td class="docs"><p>Infers what the opponent played based on payoff.
+  (update-in strategy [k] conj v))</pre></tr><tr><td class="docs"><p>Infers what the opponent played based on payoff.
 If my payoff is less than <code>*partner*</code> my opponent
 must have betrayed me.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn inferred-play [payoff]
@@ -2580,9 +2580,9 @@ must have betrayed me.</p>
 adding the points for the round and 
 recording the opponent's last play.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay [strategy x]
-  (add-to 
-    (add-to strategy :points x) 
-    :opponent (inferred-play x)))</pre></tr><tr><td class="docs"><p>Pay both strategies for cooperation.</p>
+  (-&gt; strategy
+      (add-to :points x)
+      (add-to :opponent (inferred-play x))))</pre></tr><tr><td class="docs"><p>Pay both strategies for cooperation.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-partners [a b]
   (map #(pay % *partner*) [a b]))</pre></tr><tr><td class="docs"><p>Pay both strategies for defection.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn pay-defectors [a b]
@@ -2601,7 +2601,7 @@ opponent defects. Thereafter, it will always defect.
 It is less <em>forgiving</em> than <code>:tit-for-tat</code>.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmethod play :grudger [this]
   (add-to this :plays
-    (if (some #(= :defect %) (:opponent this)) :defect :coop)))</pre></tr><tr><td class="docs"><p>The <code>:tit-for-tat</code> strategy plays whatever
+    (if (some #{:defect} (:opponent this)) :defect :coop)))</pre></tr><tr><td class="docs"><p>The <code>:tit-for-tat</code> strategy plays whatever
 its opponent played last and cooperates
 if given the first move.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defmethod play :tit-for-tat [this]
@@ -2625,9 +2625,8 @@ award the appropriate payoffs.</p>
   {:name named, :points [], :plays [], :opponent []})</pre></tr><tr><td class="docs"><p>Plays a given number of rounds between two named strategies.
 Example: <code>(play-rounds 10 :sucker :cheat)</code></p>
 </td><td class="codes" /><pre class="brush: clojure">(defn play-rounds [rounds x y]
-  (last 
-    (take (inc rounds)
-      (iterate play-round (map strategy-map [x y])))))</pre></tr><tr><td class="docs"><p>Produce a total score as the sum of the points awarded during each round.</p>
+  (nth (iterate play-round (map strategy-map [x y]))
+       (inc rounds)))</pre></tr><tr><td class="docs"><p>Produce a total score as the sum of the points awarded during each round.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn total [strategy]
   (reduce + (:points strategy)))</pre></tr><tr><td class="docs"><p>Summarizes a strategy's score.</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn summarize [strategy]
