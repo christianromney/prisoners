@@ -28,77 +28,87 @@
 
 ;; ### Payoffs
 
-;; The payoff amounts are held in private vars that are visible
-;; only within the namespace.
+;; The payoff amounts are held in dynamic vars that can be rebound
+;; to different values if desired. The actual values are not important so long as 
+;; mutual cooperation is more rewarding than mutual defection,
+;; mutual defection is more rewarding than cooperation when the other
+;; defects and defection when the other cooperates is more 
+;; rewarding than all other combinations.
 
-;; Payoff for the cooperator when the other strategy defects.
-(def ^{:private true} *sucker* 0)
+(def ^{:dynamic true} *sucker* 
+  "Payoff for the cooperator when the other strategy defects."
+  0)
 
-;; Payoff when both strategies defect.
-(def ^{:private true} *defector* 1)
+(def ^{:dynamic true} *defector* 
+  "Payoff when both strategies defect."
+  1)
 
-;; Payoff when both strategies cooperate.
-(def ^{:private true} *partner* 3)
+(def ^{:dynamic true} *partner* 
+ "Payoff when both strategies cooperate."
+  3)
 
-;; Payoff for the defector when the other cooperates.
-(def ^{:private true} *backstabber* 5)
-
+(def ^{:dynamic true} *backstabber* 
+  "Payoff for the defector when the other cooperates."
+  5)
 
 ;; ### Predicates
-
-;; Mutual cooperation is when both strategies cooperated.
-(defn mutual-cooperation? [& players]
+(defn mutual-cooperation? 
+  "Mutual cooperation is when both strategies cooperated."
+  [& players]
   (every? #{:coop} players))
 
-;; Mutual defection is when both strategies defected.
-(defn mutual-defection? [& players]
+(defn mutual-defection? 
+  "Mutual defection is when both strategies defected."
+  [& players]
   (every? #{:defect} players))
 
-;; Betrayal is when the first strategy defected and the 
-;; second cooperated.
-(defn betrayal? [x y]
+(defn betrayal?
+  "Betrayal is when the first strategy defected and the second cooperated."
+  [x y]
   (and (= :defect x) (= :coop y)))
 
 ;; ### Helper Functions
-
-;; General-purpose map collection modifier.
-(defn add-to [strategy k v]
+(defn add-to 
+  "General-purpose map collection modifier."
+  [strategy k v]
   (update-in strategy [k] conj v))
 
-;; Infers what the opponent played based on payoff.
-;; If my payoff is less than `*partner*` my opponent
-;; must have betrayed me.
-(defn inferred-play [payoff]
+(defn inferred-play 
+  "Infers what the opponent played based on payoff. 
+  If my payoff is less than `*partner*` my opponent must have betrayed me."
+  [payoff]
   (if (< payoff *partner*) :defect :coop))
 
 ;; ### Payoff Functions
-
-;; The mechanics of payment includes both
-;; adding the points for the round and 
-;; recording the opponent's last play.
-(defn pay [strategy x]
+(defn pay 
+  "The mechanics of payment includes both adding the points for the round and 
+  recording the opponent's last play."
+  [strategy x]
   (-> strategy
       (add-to :points x)
       (add-to :opponent (inferred-play x))))
 
-;; Pay both strategies for cooperation.
-(defn pay-partners [a b]
+(defn pay-partners 
+  "Pay both strategies for cooperation."
+  [a b]
   (map #(pay % *partner*) [a b]))
 
-;; Pay both strategies for defection.
-(defn pay-defectors [a b]
+(defn pay-defectors 
+  "Pay both strategies for defection."
+  [a b]
   (map #(pay % *defector*) [a b]))
 
-;; Reward the backstabber and punish the sucker.
-(defn pay-betrayal [backstabber sucker]
+(defn pay-betrayal 
+  "Reward the backstabber and punish the sucker."
+  [backstabber sucker]
   [(pay backstabber *backstabber*)
    (pay sucker *sucker*)])
 
 ;; ### Strategy Implementations
 
-;; The `play` multimethod dispatches on the
-;; data structure's `:name` attribute.
-(defmulti play :name)
+(defmulti play 
+  "The `play` multimethod dispatches on the data structure's `:name` attribute."
+  :name)
 
 ;; The `:sucker` strategy always cooperates
 (defmethod play :sucker [this]
@@ -129,9 +139,9 @@
 
 ;; ### Gameplay Functions
 
-;; Play one round between two strategies and 
-;; award the appropriate payoffs.
-(defn play-round [[x y]]
+(defn play-round 
+  "Play one round between two strategies and award the appropriate payoffs."
+  [[x y]]
   (let [player-a (play x) 
         player-b (play y) 
         a (last (:plays player-a)) 
@@ -141,26 +151,30 @@
           (betrayal? a b) (pay-betrayal player-a player-b)
           :else (pay-betrayal player-b player-a))))
 
-;; Initializes a data structure for the named strategy
-(defn strategy-map [named]
+(defn strategy-map 
+  "Initializes a data structure for the named strategy."
+  [named]
   {:name named, :points [], :plays [], :opponent []})
 
-;; Plays a given number of rounds between two named strategies.
-;; Example: `(play-rounds 10 :sucker :cheat)`
-(defn play-rounds [rounds x y]
-  (nth (iterate play-round (map strategy-map [x y]))
-       (inc rounds)))
+(defn play-rounds 
+  "Plays a given number of rounds between two named strategies.
+  Example: `(play-rounds 10 :sucker :cheat)`"
+  [rounds x y]
+  (nth (iterate play-round (map strategy-map [x y])) rounds))
 
-;; Produce a total score as the sum of the points awarded during each round.
-(defn total [strategy]
+(defn total 
+  "Produce a total score as the sum of the points awarded during each round."
+  [strategy]
   (reduce + (:points strategy)))
 
-;; Summarizes a strategy's score.
-(defn summarize [strategy]
+(defn summarize 
+  "Summarizes a strategy's score."
+  [strategy]
   (str (:name strategy) ": " (total strategy) " points"))
 
-;; Calculates the resulting scores for each of the strategies.
-(defn report [strategies]
+(defn report 
+  "Calculates the resulting scores for each of the strategies."
+  [strategies]
   (clojure.string/join ", " (map summarize strategies)))
 
 ;; ### Running the Simulation
