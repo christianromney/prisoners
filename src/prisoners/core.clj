@@ -1,6 +1,5 @@
 (ns prisoners.core
-  (:require clojure.string)
-  (:use [clojure.contrib.combinatorics :as combo]))
+  (:require [clojure.string :as st :only join]))
 
 ;; ## Prisoner's Dilemma 
 ;;
@@ -175,7 +174,7 @@
 (defn report 
   "Calculates the resulting scores for each of the strategies."
   [strategies]
-  (clojure.string/join ", " (map summarize strategies)))
+  (st/join ", " (map summarize strategies)))
 
 ;; ### Running the Simulation
 ;;
@@ -184,7 +183,7 @@
 ;; Then, run `lein repl` and type this at the prompt:
 ;;
 ;; <pre><code>
-;;  (ns game (:use prisoners.core)) 
+;;  (use 'prisoners.core) 
 ;;
 ;;  (report (play-rounds 10 :sucker :cheat))
 ;;
