@@ -1,5 +1,6 @@
 (ns prisoners.core
-  (:require [clojure.string :as st :only join]))
+  (:require [clojure.string :as st :only join])
+  (:use [incanter core stats charts]))
 
 ;; ## Prisoner's Dilemma 
 ;;
@@ -166,15 +167,25 @@
   [strategy]
   (reduce + (:points strategy)))
 
-(defn summarize 
-  "Summarizes a strategy's score."
-  [strategy]
-  (str (:name strategy) ": " (total strategy) " points"))
-
-(defn report 
-  "Calculates the resulting scores for each of the strategies."
+(defn chart 
+  "Creates a line chart of the points accumulated by two opponents"
   [strategies]
-  (st/join ", " (map summarize strategies)))
+  (let [[a b] strategies
+        title (str (:name a) " vs " (:name b))
+        rounds (range 1 (-> a :plays count inc))
+        score #(->> % :points (reductions +))
+        chart (line-chart rounds (score a))]
+    (-> (add-categories chart rounds (score b)) 
+      (set-x-label "Round")
+      (set-y-label "Points")
+      (set-title title)
+      (set-theme :default))))
+
+(defn graph
+  "Displays a chart showing multiple rounds of play
+  between two strategies."
+  [results]
+  (-> results chart view))
 
 ;; ### Running the Simulation
 ;;
