@@ -1,6 +1,6 @@
 (ns prisoners.core
   (:require [clojure.string :as st :only join])
-  (:use [incanter core stats charts]))
+  (:use [incanter core charts]))
 
 ;; ## Prisoner's Dilemma 
 ;;
@@ -180,7 +180,7 @@
         title (str (:name a) " vs " (:name b))
         rounds (range 1 (-> a :plays count inc))]
     (-> (line-chart rounds (score a)) 
-        (add-categories chart rounds (score b)) 
+        (add-categories rounds (score b)) 
         (set-x-label "Round")
         (set-y-label "Points")
         (set-title title)
