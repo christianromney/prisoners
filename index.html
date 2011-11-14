@@ -2526,11 +2526,11 @@ $(document).ready(function() {
     ul.css('margin-top', '0px')
 
 })
-</script><title>prisoners -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">prisoners</h1><h2 class="project-version">0.2.1</h2><br /><p>A Prisoner's Dilemma simulation</p>
+</script><title>prisoners -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">prisoners</h1><h2 class="project-version">0.2.2</h2><br /><p>A Prisoner's Dilemma simulation</p>
 </div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0</td></tr><tr><td class="dep-name">incanter</td><td class="dotted"><hr /></td><td class="dep-version">1.3.0-SNAPSHOT</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">lein-marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.6.1</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#prisoners.core">prisoners.core</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#prisoners.core" name="prisoners.core"><h1 class="project-name">prisoners.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes" /><pre class="brush: clojure">(ns prisoners.core
   (:require [clojure.string :as st :only join])
-  (:use [incanter core stats charts]))</pre></tr><tr><td class="docs"><h2>Prisoner's Dilemma</h2>
+  (:use [incanter core charts]))</pre></tr><tr><td class="docs"><h2>Prisoner's Dilemma</h2>
 
 <p>This is an iterative <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a> simulation.
 I've selected the payoffs and names based on
@@ -2660,19 +2660,23 @@ defect.</p>
   &quot;Produce a total score as the sum of the points awarded during each round.&quot;
   [strategy]
   (reduce + (:points strategy)))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(defn score 
+  &quot;Tabulates the accumulated score over a number of rounds
+  from the points for each round.&quot;
+  [strategy]
+  (-&gt;&gt; strategy :points (reductions +)))</pre></tr><tr><td class="docs">
 </td><td class="codes" /><pre class="brush: clojure">(defn chart 
   &quot;Creates a line chart of the points accumulated by two opponents&quot;
   [strategies]
   (let [[a b] strategies
         title (str (:name a) &quot; vs &quot; (:name b))
-        rounds (range 1 (-&gt; a :plays count inc))
-        score #(-&gt;&gt; % :points (reductions +))
-        chart (line-chart rounds (score a))]
-    (-&gt; (add-categories chart rounds (score b)) 
-      (set-x-label &quot;Round&quot;)
-      (set-y-label &quot;Points&quot;)
-      (set-title title)
-      (set-theme :default))))</pre></tr><tr><td class="docs">
+        rounds (range 1 (-&gt; a :plays count inc))]
+    (-&gt; (line-chart rounds (score a)) 
+        (add-categories rounds (score b)) 
+        (set-x-label &quot;Round&quot;)
+        (set-y-label &quot;Points&quot;)
+        (set-title title)
+        (set-theme :default))))</pre></tr><tr><td class="docs">
 </td><td class="codes" /><pre class="brush: clojure">(defn graph
   &quot;Displays a chart showing multiple rounds of play
   between two strategies.&quot;
