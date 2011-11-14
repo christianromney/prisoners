@@ -167,19 +167,24 @@
   [strategy]
   (reduce + (:points strategy)))
 
+(defn score 
+  "Tabulates the accumulated score over a number of rounds
+  from the points for each round."
+  [strategy]
+  (->> strategy :points (reductions +)))
+
 (defn chart 
   "Creates a line chart of the points accumulated by two opponents"
   [strategies]
   (let [[a b] strategies
         title (str (:name a) " vs " (:name b))
-        rounds (range 1 (-> a :plays count inc))
-        score #(->> % :points (reductions +))
-        chart (line-chart rounds (score a))]
-    (-> (add-categories chart rounds (score b)) 
-      (set-x-label "Round")
-      (set-y-label "Points")
-      (set-title title)
-      (set-theme :default))))
+        rounds (range 1 (-> a :plays count inc))]
+    (-> (line-chart rounds (score a)) 
+        (add-categories chart rounds (score b)) 
+        (set-x-label "Round")
+        (set-y-label "Points")
+        (set-title title)
+        (set-theme :default))))
 
 (defn graph
   "Displays a chart showing multiple rounds of play
