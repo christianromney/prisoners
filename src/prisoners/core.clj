@@ -196,6 +196,6 @@
 ;; <pre><code>
 ;;  (use 'prisoners.core) 
 ;;
-;;  (report (play-rounds 10 :sucker :cheat))
+;;  (graph (play-rounds 10 :sucker :cheat))
 ;;
 ;; </code></pre>
