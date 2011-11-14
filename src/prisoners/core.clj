@@ -179,8 +179,8 @@
   (let [[a b] strategies
         title (str (:name a) " vs " (:name b))
         rounds (range 1 (-> a :plays count inc))]
-    (-> (line-chart rounds (score a)) 
-        (add-categories rounds (score b)) 
+    (-> (line-chart rounds (score a) :series-label (:name a) :legend true) 
+        (add-categories rounds (score b) :series-label (:name b) :legend true) 
         (set-x-label "Round")
         (set-y-label "Points")
         (set-title title)
