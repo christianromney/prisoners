@@ -200,7 +200,6 @@
 ;;
 ;; <pre><code>
 ;;  (use 'prisoners.core) 
-;;
-;;  (graph (play-rounds 10 :sucker :cheat))
+;;  (graph (play-rounds 30 :random :tit-for-tat))
 ;;
 ;; </code></pre>
