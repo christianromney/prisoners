@@ -137,6 +137,18 @@
 (defmethod play :random [this]
   (add-to this :plays (rand-nth [:defect :coop])))
 
+;; The `:pavlov` strategy cooperates in the first
+;; iteration and whenever it plays the same move as it's opponent.
+(defmethod play :pavlov [this]
+  "Cooperates in first iteration and whenever it plays the same move as it's opponent."
+  (add-to this :plays
+    (let [my-last (last (:plays this))
+          op-last (last (:opponent this))]
+      (if (or (empty? (:plays this))
+              (mutual-cooperation? my-last op-last)
+              (mutual-defection? my-last op-last))
+            :coop :defect))))
+
 ;; ### Gameplay Functions
 
 (defn play-round 
