@@ -184,11 +184,21 @@
   [strategy]
   (->> strategy :points (reductions +)))
 
+(defn winner?
+  "outputs the winning strategy"
+  [a b]
+  (cond (> (total a) (total b))
+          (str (:name a) " wins!")
+        (= (total a) (total b))
+          (str "tie!")
+        :else
+          (str (:name b) "wins!")))
+
 (defn chart 
   "Creates a line chart of the points accumulated by two opponents"
   [strategies]
   (let [[a b] strategies
-        title (str (:name a) " vs " (:name b))
+        title (str (:name a) " vs " (:name b) " (" (winner? a b) ")")
         rounds (range 1 (-> a :plays count inc))]
     (-> (line-chart rounds (score a) :series-label (:name a) :legend true) 
         (add-categories rounds (score b) :series-label (:name b) :legend true) 
