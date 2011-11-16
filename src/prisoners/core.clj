@@ -1,7 +1,7 @@
 (ns prisoners.core
   (:require [clojure.string :as st :only join])
-  (:use [incanter core charts]))
-
+  (:use [incanter core charts])
+  (:use [clojure.contrib.math :as math :only (round expt)]))
 ;; ## Prisoner's Dilemma 
 ;;
 ;; This is an iterative [Prisoner's Dilemma](http://en.wikipedia.org/wiki/Prisoner's_dilemma) simulation.
@@ -147,6 +147,27 @@
               (mutual-cooperation? my-last op-last)
               (mutual-defection? my-last op-last))
             :coop :defect))))
+
+;; A simple neural network-based agent.
+;;
+;; The current implementation is trained to use as :tit-for-tat strategy.
+;; Trained Theta values for :sucker => theta_10 = theta_11 = theta_12 = 0.
+;; Trained Theta values for :cheat  => theta_10 = theta_11, theta_12 = -30.
+;;
+;; Note that sigmoid(0) = 0.5 and is rounded to 1 (:coop) in this
+;; implementation for simplicity purposes.
+(defmethod play :neural [this]
+  (defn sigmoid [z] (/ 1 (+ 1 (expt 2.71 (* -1 z)))))
+  (add-to this :plays
+    (let [theta_10 -30
+          theta_11 10
+          theta_12 40
+          play-to-binary {:coop 1 :defect 0 nil 1}
+          x1 (play-to-binary (last (:plays this)))
+          x2 (play-to-binary (last (:opponent this)))]
+        ({1 :coop 0 :defect} (round (sigmoid (+ (* theta_10 1)
+                                                (* theta_11 x1)
+                                                (* theta_12 x2))))))))
 
 ;; ### Gameplay Functions
 
