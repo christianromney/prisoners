@@ -156,7 +156,6 @@
 ;; Trained Theta values for :random  => theta_10 = theta_11, theta_12 = 0.
 ;; Trained Theta values for :tit-for-tat  => theta_10 = -30, theta_11 = 10, theta_12 = 40.
 ;;
-;; implementation for simplicity purposes.
 (defmethod play :neural [this]
   (defn sigmoid [z] (/ 1 (+ 1 (expt 2.71 (* -1 z)))))
   (add-to this :plays
