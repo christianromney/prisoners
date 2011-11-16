@@ -151,7 +151,7 @@
 ;; A simple neural network-based agent.
 ;;
 ;; The current implementation is trained to use as :tit-for-tat strategy.
-;; Trained Theta values for :sucker => theta_10 = theta_11 = theta_12 = 30.
+;; Trained Theta values for :sucker => theta_10 = theta_11 = theta_12 = -30.
 ;; Trained Theta values for :cheat  => theta_10 = theta_11, theta_12 = 30.
 ;; Trained Theta values for :random  => theta_10 = theta_11, theta_12 = 0.
 ;; Trained Theta values for :tit-for-tat  => theta_10 = -30, theta_11 = 10, theta_12 = 40.
