@@ -203,6 +203,12 @@
   [results]
   (-> results chart view))
 
+(defn report
+  "Outputs a text-based representation of the results
+  of playing two strategies against each other."
+  [results]
+  (apply hash-map (mapcat #(vector (:name %) (total %)) results)))
+
 ;; ### Running the Simulation
 ;;
 ;; First, run `lein deps` to download the dependencies
