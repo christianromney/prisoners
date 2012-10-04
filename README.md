@@ -33,6 +33,7 @@ having fun.
 
 Special thanks to these fine folks who contributed to this project:
 
+- [Daniel De Aguiar](https://github.com/ddeaguiar)
 - [Alan Malloy](https://github.com/amalloy)
 
 ## License
