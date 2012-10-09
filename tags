@@ -1,0 +1,43 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+^{:dynamic	src/prisoners/core.clj	/^(def ^{:dynamic true} *backstabber* $/;"	f
+^{:dynamic	src/prisoners/core.clj	/^(def ^{:dynamic true} *defector* $/;"	f
+^{:dynamic	src/prisoners/core.clj	/^(def ^{:dynamic true} *partner* $/;"	f
+^{:dynamic	src/prisoners/core.clj	/^(def ^{:dynamic true} *sucker* $/;"	f
+add-to	src/prisoners/core.clj	/^(defn add-to $/;"	f
+betrayal?	src/prisoners/core.clj	/^(defn betrayal?$/;"	f
+chart	src/prisoners/core.clj	/^(defn chart $/;"	f
+graph	src/prisoners/core.clj	/^(defn graph$/;"	f
+inferred-play	src/prisoners/core.clj	/^(defn inferred-play $/;"	f
+mutual-cooperation?	src/prisoners/core.clj	/^(defn mutual-cooperation? $/;"	f
+mutual-defection?	src/prisoners/core.clj	/^(defn mutual-defection? $/;"	f
+pay	src/prisoners/core.clj	/^(defn pay $/;"	f
+pay-betrayal	src/prisoners/core.clj	/^(defn pay-betrayal $/;"	f
+pay-defectors	src/prisoners/core.clj	/^(defn pay-defectors $/;"	f
+pay-partners	src/prisoners/core.clj	/^(defn pay-partners $/;"	f
+play	src/prisoners/core.clj	/^(defmethod play :cheat [this]$/;"	f
+play	src/prisoners/core.clj	/^(defmethod play :grudger [this]$/;"	f
+play	src/prisoners/core.clj	/^(defmethod play :pavlov [this]$/;"	f
+play	src/prisoners/core.clj	/^(defmethod play :random [this]$/;"	f
+play	src/prisoners/core.clj	/^(defmethod play :sucker [this]$/;"	f
+play	src/prisoners/core.clj	/^(defmethod play :tit-for-tat [this]$/;"	f
+play	src/prisoners/core.clj	/^(defmulti play $/;"	f
+play-round	src/prisoners/core.clj	/^(defn play-round $/;"	f
+play-rounds	src/prisoners/core.clj	/^(defn play-rounds $/;"	f
+prisoners	project.clj	/^(defproject prisoners "0.3.0"$/;"	f
+report	src/prisoners/core.clj	/^(defn report$/;"	f
+score	src/prisoners/core.clj	/^(defn score $/;"	f
+score	test/prisoners/test/core.clj	/^(defn score [x]$/;"	f
+score-round	test/prisoners/test/core.clj	/^(defn score-round [rounds x y]$/;"	f
+strategy-map	src/prisoners/core.clj	/^(defn strategy-map $/;"	f
+test-cheat-cheat	test/prisoners/test/core.clj	/^(deftest test-cheat-cheat$/;"	f
+test-cheat-grudger	test/prisoners/test/core.clj	/^(deftest test-cheat-grudger$/;"	f
+test-cheat-sucker	test/prisoners/test/core.clj	/^(deftest test-cheat-sucker$/;"	f
+test-cheat-tit-for-tat	test/prisoners/test/core.clj	/^(deftest test-cheat-tit-for-tat$/;"	f
+test-grudger-tit-for-tat	test/prisoners/test/core.clj	/^(deftest test-grudger-tit-for-tat$/;"	f
+test-sucker-sucker	test/prisoners/test/core.clj	/^(deftest test-sucker-sucker$/;"	f
+total	src/prisoners/core.clj	/^(defn total $/;"	f
