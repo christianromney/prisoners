@@ -1,8 +1,8 @@
 (ns prisoners.core
   (:require [clojure.string :as st :only join])
   (:use [incanter core charts])
-  (:use [clojure.contrib.math :as math :only (round expt)]))
-;; ## Prisoner's Dilemma 
+  (:use [clojure.math.numeric-tower :as math :only (round expt)]))
+;; ## Prisoner's Dilemma
 ;;
 ;; This is an iterative [Prisoner's Dilemma](http://en.wikipedia.org/wiki/Prisoner's_dilemma) simulation.
 ;; I've selected the payoffs and names based on
@@ -29,35 +29,35 @@
 ;; ### Payoffs
 
 ;; The payoff amounts are held in dynamic vars that can be rebound
-;; to different values if desired. The actual values are not important so long as 
+;; to different values if desired. The actual values are not important so long as
 ;; mutual cooperation is more rewarding than mutual defection,
 ;; mutual defection is more rewarding than cooperation when the other
-;; defects and defection when the other cooperates is more 
+;; defects and defection when the other cooperates is more
 ;; rewarding than all other combinations.
 
-(def ^{:dynamic true} *sucker* 
+(def ^{:dynamic true} *sucker*
   "Payoff for the cooperator when the other strategy defects."
   0)
 
-(def ^{:dynamic true} *defector* 
+(def ^{:dynamic true} *defector*
   "Payoff when both strategies defect."
   1)
 
-(def ^{:dynamic true} *partner* 
+(def ^{:dynamic true} *partner*
  "Payoff when both strategies cooperate."
   3)
 
-(def ^{:dynamic true} *backstabber* 
+(def ^{:dynamic true} *backstabber*
   "Payoff for the defector when the other cooperates."
   5)
 
 ;; ### Predicates
-(defn mutual-cooperation? 
+(defn mutual-cooperation?
   "Mutual cooperation is when both strategies cooperated."
   [& players]
   (every? #{:coop} players))
 
-(defn mutual-defection? 
+(defn mutual-defection?
   "Mutual defection is when both strategies defected."
   [& players]
   (every? #{:defect} players))
@@ -68,37 +68,37 @@
   (and (= :defect x) (= :coop y)))
 
 ;; ### Helper Functions
-(defn add-to 
+(defn add-to
   "General-purpose map collection modifier."
   [strategy k v]
   (update-in strategy [k] conj v))
 
-(defn inferred-play 
-  "Infers what the opponent played based on payoff. 
+(defn inferred-play
+  "Infers what the opponent played based on payoff.
   If my payoff is less than `*partner*` my opponent must have betrayed me."
   [payoff]
   (if (< payoff *partner*) :defect :coop))
 
 ;; ### Payoff Functions
-(defn pay 
-  "The mechanics of payment includes both adding the points for the round and 
+(defn pay
+  "The mechanics of payment includes both adding the points for the round and
   recording the opponent's last play."
   [strategy x]
   (-> strategy
       (add-to :points x)
       (add-to :opponent (inferred-play x))))
 
-(defn pay-partners 
+(defn pay-partners
   "Pay both strategies for cooperation."
   [a b]
   (map #(pay % *partner*) [a b]))
 
-(defn pay-defectors 
+(defn pay-defectors
   "Pay both strategies for defection."
   [a b]
   (map #(pay % *defector*) [a b]))
 
-(defn pay-betrayal 
+(defn pay-betrayal
   "Reward the backstabber and punish the sucker."
   [backstabber sucker]
   [(pay backstabber *backstabber*)
@@ -106,7 +106,7 @@
 
 ;; ### Strategy Implementations
 
-(defmulti play 
+(defmulti play
   "The `play` multimethod dispatches on the data structure's `:name` attribute."
   :name)
 
@@ -117,7 +117,7 @@
 ;; The `:cheat` strategy always defects
 (defmethod play :cheat [this]
   (add-to this :plays :defect))
-  
+
 ;; The `:grudger` strategy will cooperate until its
 ;; opponent defects. Thereafter, it will always defect.
 ;; It is less *forgiving* than `:tit-for-tat`.
@@ -171,35 +171,35 @@
 
 ;; ### Gameplay Functions
 
-(defn play-round 
+(defn play-round
   "Play one round between two strategies and award the appropriate payoffs."
   [[x y]]
-  (let [player-a (play x) 
-        player-b (play y) 
-        a (last (:plays player-a)) 
+  (let [player-a (play x)
+        player-b (play y)
+        a (last (:plays player-a))
         b (last (:plays player-b))]
     (cond (mutual-cooperation? a b) (pay-partners player-a player-b)
           (mutual-defection? a b) (pay-defectors player-a player-b)
           (betrayal? a b) (pay-betrayal player-a player-b)
           :else (pay-betrayal player-b player-a))))
 
-(defn strategy-map 
+(defn strategy-map
   "Initializes a data structure for the named strategy."
   [named]
   {:name named, :points [], :plays [], :opponent []})
 
-(defn play-rounds 
+(defn play-rounds
   "Plays a given number of rounds between two named strategies.
   Example: `(play-rounds 10 :sucker :cheat)`"
   [rounds x y]
   (nth (iterate play-round (map strategy-map [x y])) rounds))
 
-(defn total 
+(defn total
   "Produce a total score as the sum of the points awarded during each round."
   [strategy]
   (reduce + (:points strategy)))
 
-(defn score 
+(defn score
   "Tabulates the accumulated score over a number of rounds
   from the points for each round."
   [strategy]
@@ -215,14 +215,14 @@
         :else
           (str (:name b) "wins!")))
 
-(defn chart 
+(defn chart
   "Creates a line chart of the points accumulated by two opponents"
   [strategies]
   (let [[a b] strategies
         title (str (:name a) " vs " (:name b) " (" (winner? a b) ")")
         rounds (range 1 (-> a :plays count inc))]
-    (-> (line-chart rounds (score a) :series-label (:name a) :legend true) 
-        (add-categories rounds (score b) :series-label (:name b) :legend true) 
+    (-> (line-chart rounds (score a) :series-label (:name a) :legend true)
+        (add-categories rounds (score b) :series-label (:name b) :legend true)
         (set-x-label "Round")
         (set-y-label "Points")
         (set-title title)
@@ -241,7 +241,7 @@
 ;; Then, run `lein repl` and type this at the prompt:
 ;;
 ;; <pre><code>
-;;  (use 'prisoners.core) 
+;;  (use 'prisoners.core)
 ;;  (graph (play-rounds 30 :random :tit-for-tat))
 ;;
 ;; </code></pre>
