@@ -1,7 +1,6 @@
 (ns prisoners.game
   (:require [clojure.string :as st :only join]
-             [prisoners.strategy :as stg]
-            [prisoners.utils :as utils])
+            [prisoners.strategy :as stg])
   (:use [clojure.math.numeric-tower :as math :only (round expt)]))
 
 ;; ### Payoffs
@@ -59,8 +58,8 @@
   recording the opponent's last play."
   [strategy x]
   (-> strategy
-      (utils/add-to :points x)
-      (utils/add-to :opponent (inferred-play x))))
+      (update-in [:points] conj x)
+      (update-in [:opponent] conj (inferred-play x))))
 
 (defn pay-partners
   "Pay both strategies for cooperation."

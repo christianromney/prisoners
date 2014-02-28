@@ -1,5 +1,4 @@
-(ns prisoners.strategy
-  (:require [prisoners.utils :as utils]))
+(ns prisoners.strategy)
 
 (defprotocol Playable
   "A playable abstraction has an internal play function

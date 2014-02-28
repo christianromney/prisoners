@@ -1,8 +1,7 @@
 (ns prisoners.core
   (:require [clojure.string :as st :only join]
             [prisoners.game :as game]
-            [prisoners.strategy :as stg]
-            [prisoners.utils :as utils])
+            [prisoners.strategy :as stg])
   (:use [incanter core charts])
   (:use [clojure.math.numeric-tower :as math :only (round expt)])
   (:gen-class))
@@ -16,8 +15,8 @@
   (let [[a b] strategies
         title (str (:name a) " vs " (:name b) " (" (game/winner? a b) ")")
         rounds (range 1 (-> a :plays count inc))]
-    (-> (line-chart rounds (stg/score a) :series-label (:name a) :legend true)
-        (add-categories rounds (stg/score b) :series-label (:name b) :legend true)
+    (-> (line-chart rounds (stg/scores a) :series-label (:name a) :legend true)
+        (add-categories rounds (stg/scores b) :series-label (:name b) :legend true)
         (set-x-label "Round")
         (set-y-label "Points")
         (set-title title)
