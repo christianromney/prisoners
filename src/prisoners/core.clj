@@ -114,60 +114,11 @@
 (defmethod play :sucker [this]
   (add-to this :plays :coop))
 
-;; The `:cheat` strategy always defects
-(defmethod play :cheat [this]
-  (add-to this :plays :defect))
-
-;; The `:grudger` strategy will cooperate until its
-;; opponent defects. Thereafter, it will always defect.
-;; It is less *forgiving* than `:tit-for-tat`.
-(defmethod play :grudger [this]
-  (add-to this :plays
-    (if (some #{:defect} (:opponent this)) :defect :coop)))
-
-;; The `:tit-for-tat` strategy plays whatever
-;; its opponent played last and cooperates
-;; if given the first move.
-(defmethod play :tit-for-tat [this]
-  (add-to this :plays (or (last (:opponent this)) :coop)))
-
 ;; The `:random` strategy is a baseline for comparison.
 ;; Any given move is randomly chosen to be cooperate or
 ;; defect.
 (defmethod play :random [this]
   (add-to this :plays (rand-nth [:defect :coop])))
-
-;; The `:pavlov` strategy cooperates in the first
-;; iteration and whenever it plays the same move as it's opponent.
-(defmethod play :pavlov [this]
-  (add-to this :plays
-    (let [my-last (last (:plays this))
-          op-last (last (:opponent this))]
-      (if (or (empty? (:plays this))
-              (mutual-cooperation? my-last op-last)
-              (mutual-defection? my-last op-last))
-            :coop :defect))))
-
-;; A simple neural network-based agent.
-;;
-;; The current implementation is trained to use as :tit-for-tat strategy.
-;; Trained Theta values for :sucker => theta_10 = theta_11 = theta_12 = -30.
-;; Trained Theta values for :cheat  => theta_10 = theta_11, theta_12 = 30.
-;; Trained Theta values for :random  => theta_10 = theta_11, theta_12 = 0.
-;; Trained Theta values for :tit-for-tat  => theta_10 = -30, theta_11 = 10, theta_12 = 40.
-;;
-(defmethod play :neural [this]
-  (defn sigmoid [z] (/ 1 (+ 1 (expt 2.71 (* -1 z)))))
-  (add-to this :plays
-    (let [theta_10 -30
-          theta_11 10
-          theta_12 40
-          play-to-binary {:coop 1 :defect 0 nil 1}
-          x1 (play-to-binary (last (:plays this)))
-          x2 (play-to-binary (last (:opponent this)))]
-        ({1 :coop 0 :defect} (if (> (rand) (sigmoid (+ (* theta_10 1)
-                                                (* theta_11 x1)
-                                                (* theta_12 x2)))) 1 0)))))
 
 ;; ### Gameplay Functions
 
@@ -183,27 +134,27 @@
           (betrayal? a b) (pay-betrayal player-a player-b)
           :else (pay-betrayal player-b player-a))))
 
-(defn strategy-map
+(defprotocol Scorable
+  (score [strategy])
+  (total [strategy]))
+
+(defrecord Strategy [name points plays opponent]
+  Scorable
+  (score [strategy]
+    (->> strategy :points (reductions +)))
+  (total [strategy]
+    (reduce + (:points strategy))))
+
+(defn strategy-constructor
   "Initializes a data structure for the named strategy."
   [named]
-  {:name named, :points [], :plays [], :opponent []})
+  (->Strategy named [] [] []))
 
 (defn play-rounds
   "Plays a given number of rounds between two named strategies.
   Example: `(play-rounds 10 :sucker :cheat)`"
   [rounds x y]
-  (nth (iterate play-round (map strategy-map [x y])) rounds))
-
-(defn total
-  "Produce a total score as the sum of the points awarded during each round."
-  [strategy]
-  (reduce + (:points strategy)))
-
-(defn score
-  "Tabulates the accumulated score over a number of rounds
-  from the points for each round."
-  [strategy]
-  (->> strategy :points (reductions +)))
+  (nth (iterate play-round (map strategy-constructor [x y])) rounds))
 
 (defn winner?
   "outputs the winning strategy"
@@ -233,6 +184,10 @@
   between two strategies."
   [results]
   (-> results chart view))
+
+(comment
+  (graph (play-rounds 30 :random :sucker))
+  )
 
 ;; ### Running the Simulation
 ;;
