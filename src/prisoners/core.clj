@@ -1,5 +1,7 @@
 (ns prisoners.core
-  (:require [clojure.string :as st :only join])
+  (:require [clojure.string :as st :only join]
+            [prisoners.strategy :as stg]
+            [prisoners.utils :as utils])
   (:use [incanter core charts])
   (:use [clojure.math.numeric-tower :as math :only (round expt)]))
 ;; ## Prisoner's Dilemma
@@ -67,12 +69,6 @@
   [x y]
   (and (= :defect x) (= :coop y)))
 
-;; ### Helper Functions
-(defn add-to
-  "General-purpose map collection modifier."
-  [strategy k v]
-  (update-in strategy [k] conj v))
-
 (defn inferred-play
   "Infers what the opponent played based on payoff.
   If my payoff is less than `*partner*` my opponent must have betrayed me."
@@ -85,8 +81,8 @@
   recording the opponent's last play."
   [strategy x]
   (-> strategy
-      (add-to :points x)
-      (add-to :opponent (inferred-play x))))
+      (utils/add-to :points x)
+      (utils/add-to :opponent (inferred-play x))))
 
 (defn pay-partners
   "Pay both strategies for cooperation."
@@ -104,29 +100,13 @@
   [(pay backstabber *backstabber*)
    (pay sucker *sucker*)])
 
-;; ### Strategy Implementations
-
-(defmulti play
-  "The `play` multimethod dispatches on the data structure's `:name` attribute."
-  :name)
-
-;; The `:sucker` strategy always cooperates
-(defmethod play :sucker [this]
-  (add-to this :plays :coop))
-
-;; The `:random` strategy is a baseline for comparison.
-;; Any given move is randomly chosen to be cooperate or
-;; defect.
-(defmethod play :random [this]
-  (add-to this :plays (rand-nth [:defect :coop])))
-
 ;; ### Gameplay Functions
 
 (defn play-round
   "Play one round between two strategies and award the appropriate payoffs."
   [[x y]]
-  (let [player-a (play x)
-        player-b (play y)
+  (let [player-a (stg/play x)
+        player-b (stg/play y)
         a (last (:plays player-a))
         b (last (:plays player-b))]
     (cond (mutual-cooperation? a b) (pay-partners player-a player-b)
@@ -134,34 +114,18 @@
           (betrayal? a b) (pay-betrayal player-a player-b)
           :else (pay-betrayal player-b player-a))))
 
-(defprotocol Scorable
-  (score [strategy])
-  (total [strategy]))
-
-(defrecord Strategy [name points plays opponent]
-  Scorable
-  (score [strategy]
-    (->> strategy :points (reductions +)))
-  (total [strategy]
-    (reduce + (:points strategy))))
-
-(defn strategy-constructor
-  "Initializes a data structure for the named strategy."
-  [named]
-  (->Strategy named [] [] []))
-
 (defn play-rounds
   "Plays a given number of rounds between two named strategies.
   Example: `(play-rounds 10 :sucker :cheat)`"
   [rounds x y]
-  (nth (iterate play-round (map strategy-constructor [x y])) rounds))
+  (nth (iterate play-round (map stg/strategy-constructor [x y])) rounds))
 
 (defn winner?
   "outputs the winning strategy"
   [a b]
-  (cond (> (total a) (total b))
+  (cond (> (stg/total a) (stg/total b))
           (str (:name a) " wins!")
-        (= (total a) (total b))
+        (= (stg/total a) (stg/total b))
           (str "tie!")
         :else
           (str (:name b) "wins!")))
@@ -172,8 +136,8 @@
   (let [[a b] strategies
         title (str (:name a) " vs " (:name b) " (" (winner? a b) ")")
         rounds (range 1 (-> a :plays count inc))]
-    (-> (line-chart rounds (score a) :series-label (:name a) :legend true)
-        (add-categories rounds (score b) :series-label (:name b) :legend true)
+    (-> (line-chart rounds (stg/score a) :series-label (:name a) :legend true)
+        (add-categories rounds (stg/score b) :series-label (:name b) :legend true)
         (set-x-label "Round")
         (set-y-label "Points")
         (set-title title)
