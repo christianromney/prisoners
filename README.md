@@ -1,33 +1,22 @@
-# prisoners
+# Prisoners
 
-This is a Prisoner's Dilemma simulation written in Clojure.
+This is an iterative
+[Prisoner's Dilemma](http://en.wikipedia.org/wiki/Prisoner's_dilemma)
+simulation.  Payoffs are based on Richard Dawkins' description in
+[The Selfish Gene](http://www.amazon.com/gp/product/B000SEHIG2/ref=as_li_ss_tl?ie=UTF8&tag=xmlblog-20&linkCode=as2&camp=217145&creative=399373&creativeASIN=B000SEHIG2).
 
-I've selected the payoffs and names based on
-Richard Dawkins' description in The Selfish Gene.
-
-The plan will be to develop a few different tournament types
-starting with a simple, random number of rounds and ending 
-with an evolutionary tournament where strategies are paid
-with offspring.
-
-The goal of this project is to learn both Clojure and some
-basic evolutionary/genetic programming techniques while
-having fun.
+Visualizations are implemented using the [Incanter library](http://incanter.org/).
 
 ## Getting Started
 
 - Run ```lein deps``` to download the dependencies
 - Run ```lein repl``` to experiment
-- Run ```lein marg``` to generate the documentation
 
-## TODO
+    > (use 'prisoners.core)
+    > (graph (play-rounds 30 :random :tit-for-tat))
 
-- Organize the namespace, break functions out into files by logical function
-- Drive the implementation with tests
-- Build the language up to the problem
-- Create the game and tournament abstractions
-- Create more strategies (ten would be nice)!
-- Use (clojure.contrib.combinatorics/selections [s1 s2 ... sn] 2) for the pairings
+- Run ```lein run 30 random sucker``` to play 30 rounds with the
+  _random_ and _sucker_ strategies.
 
 ## Contributors
 
